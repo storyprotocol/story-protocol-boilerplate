@@ -1,7 +1,7 @@
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 /// @notice Mock ERC721 for used for testing IP registration.
-contract MockERC721 is ERc721 {
+contract MockERC721 is ERC721 {
 
     uint256 totalSupply = 0;
 

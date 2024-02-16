@@ -14,7 +14,7 @@
 
 "@storyprotocol/contracts@git+ssh://git@github.com:storyprotocol/protocol-core":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:storyprotocol/protocol-core#5eb69537cdd73818f007be8460d709c50d32579e"
+  resolved "git+ssh://git@github.com:storyprotocol/protocol-core#de57c330bd04f18f8d8264d1dce584b3ec4ee386"
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
@@ -22,8 +22,8 @@
 
 "@storyprotocol/contracts@https://github.com/storyprotocol/protocol-core#main":
   version "1.0.0"
-  uid "5eb69537cdd73818f007be8460d709c50d32579e"
-  resolved "https://github.com/storyprotocol/protocol-core#5eb69537cdd73818f007be8460d709c50d32579e"
+  uid de57c330bd04f18f8d8264d1dce584b3ec4ee386
+  resolved "https://github.com/storyprotocol/protocol-core#de57c330bd04f18f8d8264d1dce584b3ec4ee386"
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
@@ -31,7 +31,7 @@
 
 "@storyprotocol/periphery@https://github.com/storyprotocol/protocol-periphery#main":
   version "1.0.0"
-  resolved "https://github.com/storyprotocol/protocol-periphery#7d6afb07f5f31e5d15ebb25bdf5cf368e390f904"
+  resolved "https://github.com/storyprotocol/protocol-periphery#f374c815317beb5bd92f00af9ba3a24aa83d37e5"
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"

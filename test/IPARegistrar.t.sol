@@ -27,8 +27,8 @@ contract IPARegistrarTest is Test {
     }
 
     function test_IPARegistration() public {
-        registrar.register("test");
-        assertEq(IPAssetRegistry(IPA_REGISTRY_ADDR).);
+        address ipId = registrar.register("test");
+        assertTrue(IPAssetRegistry(IPA_REGISTRY_ADDR).isRegistered(ipId));
     }
 
 }

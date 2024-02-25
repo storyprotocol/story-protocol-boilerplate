@@ -12,30 +12,29 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.0.1.tgz#93da90fc209a0a4ff09c1deb037fbb35e4020890"
   integrity sha512-yQJaT5HDp9hYOOp4jTYxMsR02gdFZFXhewX5HW9Jo4fsqSVqqyIO/xTHdWDaKX5a3pv1txmf076Lziz+sO7L1w==
 
-"@storyprotocol/contracts@git+ssh://git@github.com:storyprotocol/protocol-core":
-  version "1.0.0"
-  resolved "git+ssh://git@github.com:storyprotocol/protocol-core#de57c330bd04f18f8d8264d1dce584b3ec4ee386"
+"@story-protocol/core@https://github.com/storyprotocol/protocol-core#main":
+  version "0.3.0"
+  resolved "https://github.com/storyprotocol/protocol-core#c84d0a68f9bac17ce7b7b12ccfccd2fc5e49d0c8"
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
     erc6551 "^0.3.1"
 
+"@story-protocol/periphery@https://github.com/storyprotocol/protocol-periphery#main":
+  version "1.0.0"
+  resolved "https://github.com/storyprotocol/protocol-periphery#7cba00791aee096e6444b28ebf0549bb9687e8ec"
+  dependencies:
+    "@openzeppelin/contracts" "5.0.1"
+    "@openzeppelin/contracts-upgradeable" "5.0.1"
+    "@storyprotocol/contracts" "https://github.com/storyprotocol/protocol-core#main"
+
 "@storyprotocol/contracts@https://github.com/storyprotocol/protocol-core#main":
   version "1.0.0"
-  uid de57c330bd04f18f8d8264d1dce584b3ec4ee386
   resolved "https://github.com/storyprotocol/protocol-core#de57c330bd04f18f8d8264d1dce584b3ec4ee386"
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
     erc6551 "^0.3.1"
-
-"@storyprotocol/periphery@https://github.com/storyprotocol/protocol-periphery#main":
-  version "1.0.0"
-  resolved "https://github.com/storyprotocol/protocol-periphery#f374c815317beb5bd92f00af9ba3a24aa83d37e5"
-  dependencies:
-    "@openzeppelin/contracts" "5.0.1"
-    "@openzeppelin/contracts-upgradeable" "5.0.1"
-    "@storyprotocol/contracts" "git+ssh://git@github.com:storyprotocol/protocol-core"
 
 "ds-test@https://github.com/dapphub/ds-test":
   version "1.0.0"

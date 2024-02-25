@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import { IP } from "@storyprotocol/contracts/lib/IP.sol";
-import { IPAssetRegistry } from "@storyprotocol/contracts/registries/IPAssetRegistry.sol";
-import { IPResolver } from "@storyprotocol/contracts/resolvers/IPResolver.sol";
-
-import { IERC721Mintable } from "./interfaces/IERC721Mintable.sol";
+import { IP } from "@story-protocol/core/lib/IP.sol";
+import { IPAssetRegistry } from "@story-protocol/core/registries/IPAssetRegistry.sol";
+import { IPResolver } from "@story-protocol/core/resolvers/IPResolver.sol";
 
 contract IPARegistrar {
-
-
-    IERC721Mintable public immutable NFT;
+    address public immutable NFT;
     address public immutable IP_RESOLVER;
     IPAssetRegistry public immutable IPA_REGISTRY;
 
@@ -21,13 +17,13 @@ contract IPARegistrar {
     ) {
         IPA_REGISTRY = IPAssetRegistry(ipAssetRegistry);
         IP_RESOLVER = resolver;
-        NFT = IERC721Mintable(nft);
+        NFT = nft;
     }
 
     function register(
-        string memory ipName
+				string memory ipName,
+        uint256 tokenId 
     ) external returns (address) {
-        uint256 tokenId = NFT.mint();
         bytes memory metadata = abi.encode(
             IP.MetadataV1({
                 name: ipName,
@@ -37,6 +33,6 @@ contract IPARegistrar {
                 uri: ""
             })
         );
-        return IPA_REGISTRY.register(block.chainid, address(NFT), tokenId, IP_RESOLVER, true, metadata);
+        return IPA_REGISTRY.register(block.chainid, NFT, tokenId, IP_RESOLVER, true, metadata);
     }
 }

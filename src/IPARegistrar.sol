@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.20;
 
 import { IP } from "@story-protocol/core/lib/IP.sol";
 import { IPAssetRegistry } from "@story-protocol/core/registries/IPAssetRegistry.sol";

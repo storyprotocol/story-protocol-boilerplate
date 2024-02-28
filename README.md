@@ -1,9 +1,66 @@
-## Story Protocol Boilerplate Code
+## Foundry
 
-This repository should be used to help developers get started with building on top of Story Protocol. It includes a simple contract used for IP registration of mock ERC-721 NFTs, and an accompanying test.
+**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+
+Foundry consists of:
+
+-   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
+-   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
+-   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
+-   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
 ## Documentation
 
-Find the full smart contract guide here: https://docs.storyprotocol.xyz/v0.1-beta/docs/get-started-with-the-smart-contracts
+https://book.getfoundry.sh/
 
-We recommend developers who utilize this guide to build off a fork of this repo as a starting point, as it includes all needed dependencies and tooling.
+## Usage
+
+### Build
+
+```shell
+$ forge build
+```
+
+### Test
+
+```shell
+$ forge test
+```
+
+### Format
+
+```shell
+$ forge fmt
+```
+
+### Gas Snapshots
+
+```shell
+$ forge snapshot
+```
+
+### Anvil
+
+```shell
+$ anvil
+```
+
+### Deploy
+
+```shell
+$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+
+### Cast
+
+```shell
+$ cast <subcommand>
+```
+
+### Help
+
+```shell
+$ forge --help
+$ anvil --help
+$ cast --help
+```

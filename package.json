@@ -17,5 +17,7 @@
     "@openzeppelin/contracts-upgradeable": "5.0.1",
     "@story-protocol/core": "https://github.com/storyprotocol/protocol-core#main",
     "@story-protocol/periphery": "https://github.com/storyprotocol/protocol-periphery#main"
-  }
+  },
+  "main": "index.js",
+  "repository": "git@github.com:trodrigu/story-protocol-boilerplate.git"
 }

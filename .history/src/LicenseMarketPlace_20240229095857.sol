@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import {IP} from "@story-protocol/protocol-core/contracts/lib/IP.sol";
-import {IPAssetRegistry} from "@story-protocol/protocol-core/contracts/registries/IPAssetRegistry.sol";
-import {IPResolver} from "@story-protocol/protocol-core/contracts/resolvers/IPResolver.sol";
-import {LicenseRegistry} from "@story-protocol/protocol-core/contracts/registries/LicenseRegistry.sol";
+import {IP} from "@story-protocol/protocol-core/lib/IP.sol";
+import {IPAssetRegistry} from "@story-protocol/protocol-core/registries/IPAssetRegistry.sol";
+import {IPResolver} from "@story-protocol/protocol-core/resolvers/IPResolver.sol";
+import {LicenseRegistry} from "@story-protocol/protocol-core/registries/LicenseRegistry.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
-
 
 contract LicenseMarketPlace is ILicenseMarketPlace {
     address public immutable NFT;

@@ -7,7 +7,6 @@ import {IPResolver} from "@story-protocol/protocol-core/contracts/resolvers/IPRe
 import {LicenseRegistry} from "@story-protocol/protocol-core/contracts/registries/LicenseRegistry.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 
-
 contract LicenseMarketPlace is ILicenseMarketPlace {
     address public immutable NFT;
     address public immutable IP_RESOLVER;

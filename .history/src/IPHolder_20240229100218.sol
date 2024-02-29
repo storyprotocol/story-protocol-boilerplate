@@ -6,9 +6,9 @@ import { IERC1155Receiver } from "@openzeppelin/contracts/token/ERC1155/IERC1155
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import { IPAssetRegistry } from "@story-protocol/protocol-core/contracts/registries/IPAssetRegistry.sol";
-import { IStoryProtocolGateway } from "@story-protocol/protocol-periphery/contracts/interfaces/IStoryProtocolGateway.sol";
-import { SPG } from "@story-protocol/protocol-periphery/contracts/lib/SPG.sol";
-import { Metadata } from "@story-protocol/protocol-periphery/contracts/lib/Metadata.sol";
+import { IStoryProtocolGateway } from "@story-protocol/periphery/interfaces/IStoryProtocolGateway.sol";
+import { SPG } from "@story-protocol/periphery/lib/SPG.sol";
+import { Metadata } from "@story-protocol/periphery/lib/Metadata.sol";
 
 interface IERC1271 {
     function isValidSignature(bytes32 _hash, bytes memory _signature) external view returns (bytes4);

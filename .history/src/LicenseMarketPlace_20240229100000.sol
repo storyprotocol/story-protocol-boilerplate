@@ -6,6 +6,7 @@ import {IPAssetRegistry} from "@story-protocol/protocol-core/contracts/registrie
 import {IPResolver} from "@story-protocol/protocol-core/contracts/resolvers/IPResolver.sol";
 import {LicenseRegistry} from "@story-protocol/protocol-core/contracts/registries/LicenseRegistry.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
+import { SPG } from "@story-protocol/protocol-core/contracts/gateways/StoryProtocolGateway.sol";
 
 
 contract LicenseMarketPlace is ILicenseMarketPlace {

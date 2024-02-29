@@ -4,7 +4,6 @@ pragma solidity ^0.8.23;
 import { IP } from "@storyprotocol/core/lib/IP.sol";
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 import { IPResolver } from "@storyprotocol/core/resolvers/IPResolver.sol";
-import { StoryProtocolGateway } from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import { ILicenseMarketPlace } from "./ILicenseMarketPlace.sol";
 
 contract LicenseMarketPlace {
@@ -15,12 +14,10 @@ contract LicenseMarketPlace {
 
 
     constructor(
-        address spg,
         address ipAssetRegistry,
         address resolver,
         address nft
     ) {
-        SPG = spg;
         IPA_REGISTRY = IPAssetRegistry(ipAssetRegistry);
         IP_RESOLVER = resolver;
         NFT = nft;
@@ -47,7 +44,6 @@ contract LicenseMarketPlace {
         uint256 storyProtocolIpId,
         uint256 amount
     ) external view returns (address) {
-        SPG.mintLicensePIL(pilPolicy, licensorIpId, 1, ROYATY_CONTEXT, MINTING_FEE, MINTING_FEE_TOKNE);
         return buyer;
     }
 

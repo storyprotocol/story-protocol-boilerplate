@@ -20,7 +20,6 @@ contract LicenseMarketPlace {
         address resolver,
         address nft
     ) {
-        SPG = spg;
         IPA_REGISTRY = IPAssetRegistry(ipAssetRegistry);
         IP_RESOLVER = resolver;
         NFT = nft;
@@ -47,7 +46,6 @@ contract LicenseMarketPlace {
         uint256 storyProtocolIpId,
         uint256 amount
     ) external view returns (address) {
-        SPG.mintLicensePIL(pilPolicy, licensorIpId, 1, ROYATY_CONTEXT, MINTING_FEE, MINTING_FEE_TOKNE);
         return buyer;
     }
 

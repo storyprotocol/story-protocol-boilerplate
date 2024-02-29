@@ -5,8 +5,8 @@ import { stdJson } from "forge-std/Script.sol";
 import { Test } from "forge-std/Test.sol";
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { IPResolver } from "@storyprotocol/core/resolvers/IPResolver.sol";
+import { IPAssetRegistry } from "@story-protocol/protocol-core/contracts/registries/IPAssetRegistry.sol";
+import { IPResolver } from "@story-protocol/protocol-core/contracts/resolvers/IPResolver.sol";
 
 import { IPARegistrar } from "../src/IPARegistrar.sol";
 
@@ -45,7 +45,7 @@ contract IPARegistrarTest is Test {
     function test_IPARegistration() public {
         vm.startPrank(address(ipaRegistrar));
         uint256 tokenId = NFT.mint();
-        address ipId = ipaRegistrar.register("test", tokenId);
+        ipaRegistrar.register("test", tokenId);
     }
 
     function _readProtocolAddresses() internal {

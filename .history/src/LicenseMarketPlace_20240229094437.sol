@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import {IP} from "@story-protocol/core/lib/IP.sol";
-import {IPAssetRegistry} from "@story-protocol/core/registries/IPAssetRegistry.sol";
-import {IPResolver} from "@story-protocol/core/resolvers/IPResolver.sol";
-import {LicenseRegistry} from "@story-protocol/core/registries/LicenseRegistry.sol";
+import {IP} from "@storyprotocol/core/lib/IP.sol";
+import {IPAssetRegistry} from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import {IPResolver} from "@storyprotocol/core/resolvers/IPResolver.sol";
+import {LicenseRegistry} from "@storyprotocol/core/registries/LicenseRegistry.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 
 contract LicenseMarketPlace is ILicenseMarketPlace {
@@ -81,8 +81,13 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         (bool success2, ) = ipAssetAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        LicenseRegistry.mintLicense(
-
+        SPG.mintLicensePIL(
+            pilPolicy,
+            ipAssetAddress,
+            1,
+            ROYATY_CONTEXT,
+            MINTING_FEE,
+            MINTING_FEE_TOKNE
         );
     }
 
@@ -104,6 +109,8 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success3, ) = ipAssetAddress.call{value: subjectFee}("");
         require(success1 && success2 && success3, "Unable to send funds");
+
+        LicenseRegistry.burnLicenses()
 
         LicenseRegistry.burnLicenses(
             msg.sender,

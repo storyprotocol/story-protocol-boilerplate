@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import {IP} from "@story-protocol/core/lib/IP.sol";
-import {IPAssetRegistry} from "@story-protocol/core/registries/IPAssetRegistry.sol";
-import {IPResolver} from "@story-protocol/core/resolvers/IPResolver.sol";
-import {LicenseRegistry} from "@story-protocol/core/registries/LicenseRegistry.sol";
+import {IP} from "@storyprotocol/core/lib/IP.sol";
+import {IPAssetRegistry} from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import {IPResolver} from "@storyprotocol/core/resolvers/IPResolver.sol";
+import {LicenseRegistry} from "@storyprotocol/core/registries/LicenseRegistry.sol";
+// import {StoryProtocolGateway} from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 
 contract LicenseMarketPlace is ILicenseMarketPlace {
@@ -13,8 +14,6 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     IPAssetRegistry public immutable IPA_REGISTRY;
     LicenseRegistry public immutable LICENSE_REGISTRY;
     // StoryProtocolGateway public SPG;
-
-    event Trade(address trader, address subject, bool isBuy, uint256 shareAmount, uint256 ethAmount, uint256 protocolEthAmount, uint256 subjectEthAmount, uint256 supply);
     
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
@@ -26,7 +25,7 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     mapping(address => mapping(address => uint256)) public sharesBalance;
 
     // SharesSubject => Supply
-    mapping(address => LicenseStatistics) public sharesStatistics;
+    mapping(address => uint256) public sharesSupply;
 
     constructor(
         address licenseRegistryAddress,
@@ -68,21 +67,26 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         address ipAssetAddress,
         uint256 amount
     ) public payable {
-        uint256 supply = sharesStatistics[ipAssetAddress];
+        uint256 supply = sharesSupply[ipAssetAddress];
         require(supply > 0 || ipAssetAddress == msg.sender, "Only the shares' subject can buy the first share");
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
         sharesBalance[ipAssetAddress][msg.sender] = sharesBalance[ipAssetAddress][msg.sender] + amount;
-        sharesStatistics[ipAssetAddress] = supply + amount;
+        sharesSupply[ipAssetAddress] = supply + amount;
         emit Trade(msg.sender, ipAssetAddress, true, amount, price, protocolFee, subjectFee, supply + amount);
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = ipAssetAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
-        LicenseRegistry.mintLicense(
-
+        SPG.mintLicensePIL(
+            pilPolicy,
+            ipAssetAddress,
+            1,
+            ROYATY_CONTEXT,
+            MINTING_FEE,
+            MINTING_FEE_TOKNE
         );
     }
 
@@ -90,22 +94,23 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     function sellKey(
         address ipAssetAddress,
         uint256 amount
-    ) public payable {
-        uint256 supply = sharesStatistics[ipAssetAddress];
+    ) external view returns (address) {
+        uint256 supply = sharesSupply[ipAssetAddress];
         require(supply > amount, "Cannot sell the last share");
         uint256 price = getPrice(supply - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(sharesBalance[ipAssetAddress][msg.sender] >= amount, "Insufficient shares");
         sharesBalance[ipAssetAddress][msg.sender] = sharesBalance[ipAssetAddress][msg.sender] - amount;
-        sharesStatistics[ipAssetAddress] = supply - amount;
+        sharesSupply[ipAssetAddress] = supply - amount;
         emit Trade(msg.sender, ipAssetAddress, false, amount, price, protocolFee, subjectFee, supply - amount);
         (bool success1, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
         (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success3, ) = ipAssetAddress.call{value: subjectFee}("");
         require(success1 && success2 && success3, "Unable to send funds");
+        return seller;
 
-        LicenseRegistry.burnLicenses(
+        SPG.burnLicenses(
             msg.sender,
             ipAssetAddress,
             1,
@@ -115,7 +120,7 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         );
     }
 
-    function getPrice(LicenseStatistics calldata supply, uint256 amount) public pure returns (uint256) {
+    function getPrice(uint256 supply, uint256 amount) public pure returns (uint256) {
         uint256 sum1 = supply == 0 ? 0 : (supply - 1 )* (supply) * (2 * (supply - 1) + 1) / 6;
         uint256 sum2 = supply == 0 && amount == 1 ? 0 : (supply - 1 + amount) * (supply + amount) * (2 * (supply - 1 + amount) + 1) / 6;
         uint256 summation = sum2 - sum1;

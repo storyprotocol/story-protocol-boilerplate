@@ -36,3 +36,5 @@ lcov.info
 
 # forge lib folder
 lib/
+
+.history/*

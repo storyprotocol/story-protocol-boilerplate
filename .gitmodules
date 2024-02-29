@@ -1,6 +1,0 @@
-[submodule "lib/solmate"]
-	path = lib/solmate
-	url = https://github.com/transmissions11/solmate
-[submodule "lib/WrappedFriendtechShares"]
-	path = lib/WrappedFriendtechShares
-	url = https://github.com/zhongeric/WrappedFriendtechShares

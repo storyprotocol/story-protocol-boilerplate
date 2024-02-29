@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 import { Test } from "forge-std/Test.sol";
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IPAssetRegistry } from "@story-protocol/core/registries/IPAssetRegistry.sol";
+import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 import { LicenseMarketPlace } from "../src/LicenseMarketPlace.sol";
 
 contract MockERC721 is ERC721 {

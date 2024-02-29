@@ -12,29 +12,23 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.0.1.tgz#93da90fc209a0a4ff09c1deb037fbb35e4020890"
   integrity sha512-yQJaT5HDp9hYOOp4jTYxMsR02gdFZFXhewX5HW9Jo4fsqSVqqyIO/xTHdWDaKX5a3pv1txmf076Lziz+sO7L1w==
 
-"@story-protocol/core@https://github.com/storyprotocol/protocol-core#main":
-  version "0.3.0"
-  resolved "https://github.com/storyprotocol/protocol-core#c84d0a68f9bac17ce7b7b12ccfccd2fc5e49d0c8"
+"@story-protocol/protocol-core@1.0.0-beta-rc6", "@story-protocol/protocol-core@^1.0.0-beta-rc6":
+  version "1.0.0-beta-rc6"
+  resolved "https://registry.yarnpkg.com/@story-protocol/protocol-core/-/protocol-core-1.0.0-beta-rc6.tgz#be833ae95419340816c6f246c40654d0e8a649c0"
+  integrity sha512-2diMjDOpFuKcKZ7BQTdR0jb/W3Etob3cPkewteZvXgYwpLd0MpwPDkujPOM7KijYlp781kDx0ay8TqutgqH5QQ==
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
     erc6551 "^0.3.1"
 
-"@story-protocol/periphery@https://github.com/storyprotocol/protocol-periphery#main":
-  version "1.0.0"
-  resolved "https://github.com/storyprotocol/protocol-periphery#7cba00791aee096e6444b28ebf0549bb9687e8ec"
+"@story-protocol/protocol-periphery@^1.0.0-beta-rc1":
+  version "1.0.0-beta-rc1"
+  resolved "https://registry.yarnpkg.com/@story-protocol/protocol-periphery/-/protocol-periphery-1.0.0-beta-rc1.tgz#143a4fafd7a14fd286e544cf44deb3637d76a984"
+  integrity sha512-30fArxLUI5aQ7kb6vQsMTvRLdWIhG2fo1+kOkbfe4+kFcBEAnDG1nV6YKxO7zkpkBas6iXzl4QJPcjOr411ehg==
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"
-    "@storyprotocol/contracts" "https://github.com/storyprotocol/protocol-core#main"
-
-"@storyprotocol/contracts@https://github.com/storyprotocol/protocol-core#main":
-  version "1.0.0"
-  resolved "https://github.com/storyprotocol/protocol-core#de57c330bd04f18f8d8264d1dce584b3ec4ee386"
-  dependencies:
-    "@openzeppelin/contracts" "5.0.1"
-    "@openzeppelin/contracts-upgradeable" "5.0.1"
-    erc6551 "^0.3.1"
+    "@story-protocol/protocol-core" "1.0.0-beta-rc6"
 
 "ds-test@https://github.com/dapphub/ds-test":
   version "1.0.0"

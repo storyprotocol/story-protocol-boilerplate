@@ -4,8 +4,8 @@ pragma solidity ^0.8.23;
 import { Test } from "forge-std/Test.sol";
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IPAssetRegistry } from "@story-protocol/core/registries/IPAssetRegistry.sol";
-import { IPResolver } from "@story-protocol/core/resolvers/IPResolver.sol";
+import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import { IPResolver } from "@storyprotocol/core/resolvers/IPResolver.sol";
 
 import { IPARegistrar } from "../src/IPARegistrar.sol";
 

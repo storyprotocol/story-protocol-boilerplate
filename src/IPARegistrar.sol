@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import { IP } from "@story-protocol/core/lib/IP.sol";
-import { IPAssetRegistry } from "@story-protocol/core/registries/IPAssetRegistry.sol";
-import { IPResolver } from "@story-protocol/core/resolvers/IPResolver.sol";
+import { IP } from "@storyprotocol/core/lib/IP.sol";
+import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import { IPResolver } from "@storyprotocol/core/resolvers/IPResolver.sol";
 
 contract IPARegistrar {
     address public immutable NFT;

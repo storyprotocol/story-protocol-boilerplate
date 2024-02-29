@@ -1,6 +1,11 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+src = 'contracts'
+out = 'out'
+libs = ['node_modules', 'lib']
+cache_path  = 'forge-cache'
+gas_reports = ["*"]
+optimizer = true
+optimizer_runs = 20000
+test = 'test'
+solc = '0.8.23'
+fs_permissions = [{ access = 'read', path = './' }, { access = 'read-write', path = './deploy-out' }]

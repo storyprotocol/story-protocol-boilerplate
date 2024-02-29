@@ -15,7 +15,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "5.0.1",
     "@openzeppelin/contracts-upgradeable": "5.0.1",
-    "@story-protocol/core": "https://github.com/storyprotocol/protocol-core#main",
-    "@story-protocol/periphery": "https://github.com/storyprotocol/protocol-periphery#main"
+    "@story-protocol/protocol-core": "^1.0.0-beta-rc6",
+    "@story-protocol/protocol-periphery": "^1.0.0-beta-rc1"
   }
 }

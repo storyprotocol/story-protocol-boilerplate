@@ -1,6 +1,6 @@
 @openzeppelin/=node_modules/@openzeppelin/
-@story-protocol/core/=node_modules/@story-protocol/core/contracts/
-@story-protocol/periphery/=node_modules/@story-protocol/periphery/contracts/
+@storyprotocol/core/=node_modules/@story-protocol/protocol-core/contracts/
+@storyprotocol/periphery/=node_modules/@story-protocol/protocol-periphery/contracts/
 erc6551/=node_modules/erc6551/
 forge-std/=node_modules/forge-std/src/
 ds-test/=node_modules/ds-test/src/

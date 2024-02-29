@@ -2,12 +2,6 @@
 pragma solidity ^0.8.23;
 
 interface ILicenseMarketPlace {
-
-	struct LicenseStatistics {
-        uint256 totalSupply;
-        uint256 numDerivatives;
-    } // The number of supply and derivatives. 
-
 	// 	Registers an ipAsset that is registered on storyProtocol to the marketplace
 	function registerIpAsset(address storyProtocolIpId, uint256 setFee) external view returns (address);
 	

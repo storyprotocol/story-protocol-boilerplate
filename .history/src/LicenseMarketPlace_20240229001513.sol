@@ -7,7 +7,7 @@ import {IPResolver} from "@storyprotocol/core/resolvers/IPResolver.sol";
 import {StoryProtocolGateway} from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 
-contract LicenseMarketPlace is ILicenseMarketPlace {
+contract LicenseMarketPlace {
     address public immutable NFT;
     address public immutable IP_RESOLVER;
     IPAssetRegistry public immutable IPA_REGISTRY;
@@ -25,6 +25,8 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
 
     // SharesSubject => Supply
     mapping(address => uint256) public sharesSupply;
+
+    
 
     constructor(
         address spg,
@@ -92,7 +94,6 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         );
     }
 
-    // So youre NFT can own items as well as you
     function sellKey(
         address ipAssetAddress,
         uint256 amount
@@ -112,8 +113,8 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         require(success1 && success2 && success3, "Unable to send funds");
         return seller;
 
-        SPG.burnLicenses(
-            msg.sender,
+                SPG.mintLicensePIL(
+            pilPolicy,
             ipAssetAddress,
             1,
             ROYATY_CONTEXT,

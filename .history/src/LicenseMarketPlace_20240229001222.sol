@@ -7,7 +7,7 @@ import {IPResolver} from "@storyprotocol/core/resolvers/IPResolver.sol";
 import {StoryProtocolGateway} from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 
-contract LicenseMarketPlace is ILicenseMarketPlace {
+contract LicenseMarketPlace {
     address public immutable NFT;
     address public immutable IP_RESOLVER;
     IPAssetRegistry public immutable IPA_REGISTRY;
@@ -25,6 +25,8 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
 
     // SharesSubject => Supply
     mapping(address => uint256) public sharesSupply;
+
+    
 
     constructor(
         address spg,
@@ -63,28 +65,29 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     }
 
     function buyKey(
-        address ipAssetAddress,
+        address ipAddress,
         uint256 amount
     ) public payable {
         
         LICENSE_REGISTRY.transferFrom(msg.sender, address(this), licensorIpId);
         
-        uint256 supply = sharesSupply[ipAssetAddress];
-        require(supply > 0 || ipAssetAddress == msg.sender, "Only the shares' subject can buy the first share");
+
+        uint256 supply = sharesSupply[ipAddress];
+        require(supply > 0 || ipAddress == msg.sender, "Only the shares' subject can buy the first share");
         uint256 price = getPrice(supply, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
         require(msg.value >= price + protocolFee + subjectFee, "Insufficient payment");
-        sharesBalance[ipAssetAddress][msg.sender] = sharesBalance[ipAssetAddress][msg.sender] + amount;
-        sharesSupply[ipAssetAddress] = supply + amount;
-        emit Trade(msg.sender, ipAssetAddress, true, amount, price, protocolFee, subjectFee, supply + amount);
+        sharesBalance[ipAddress][msg.sender] = sharesBalance[ipAddress][msg.sender] + amount;
+        sharesSupply[ipAddress] = supply + amount;
+        emit Trade(msg.sender, ipAddress, true, amount, price, protocolFee, subjectFee, supply + amount);
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success2, ) = ipAssetAddress.call{value: subjectFee}("");
+        (bool success2, ) = ipAddress.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
 
         SPG.mintLicensePIL(
             pilPolicy,
-            ipAssetAddress,
+            licensorIpId,
             1,
             ROYATY_CONTEXT,
             MINTING_FEE,
@@ -92,34 +95,27 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
         );
     }
 
-    // So youre NFT can own items as well as you
     function sellKey(
-        address ipAssetAddress,
+        address seller,
+        uint256 storyProtocolIpId,
         uint256 amount
     ) external view returns (address) {
-        uint256 supply = sharesSupply[ipAssetAddress];
+        uint256 supply = sharesSupply[sharesSubject];
         require(supply > amount, "Cannot sell the last share");
         uint256 price = getPrice(supply - amount, amount);
         uint256 protocolFee = price * protocolFeePercent / 1 ether;
         uint256 subjectFee = price * subjectFeePercent / 1 ether;
-        require(sharesBalance[ipAssetAddress][msg.sender] >= amount, "Insufficient shares");
-        sharesBalance[ipAssetAddress][msg.sender] = sharesBalance[ipAssetAddress][msg.sender] - amount;
-        sharesSupply[ipAssetAddress] = supply - amount;
-        emit Trade(msg.sender, ipAssetAddress, false, amount, price, protocolFee, subjectFee, supply - amount);
+        require(sharesBalance[sharesSubject][msg.sender] >= amount, "Insufficient shares");
+        sharesBalance[sharesSubject][msg.sender] = sharesBalance[sharesSubject][msg.sender] - amount;
+        sharesSupply[sharesSubject] = supply - amount;
+        emit Trade(msg.sender, sharesSubject, false, amount, price, protocolFee, subjectFee, supply - amount);
         (bool success1, ) = msg.sender.call{value: price - protocolFee - subjectFee}("");
         (bool success2, ) = protocolFeeDestination.call{value: protocolFee}("");
-        (bool success3, ) = ipAssetAddress.call{value: subjectFee}("");
+        (bool success3, ) = sharesSubject.call{value: subjectFee}("");
         require(success1 && success2 && success3, "Unable to send funds");
         return seller;
 
-        SPG.burnLicenses(
-            msg.sender,
-            ipAssetAddress,
-            1,
-            ROYATY_CONTEXT,
-            MINTING_FEE,
-            MINTING_FEE_TOKNE
-        );
+
     }
 
 

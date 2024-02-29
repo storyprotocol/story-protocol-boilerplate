@@ -11,7 +11,6 @@ contract LicenseMarketPlace {
     address public immutable NFT;
     address public immutable IP_RESOLVER;
     IPAssetRegistry public immutable IPA_REGISTRY;
-    LicenseRegistry public immutable LICENSE_REGISTRY;
     StoryProtocolGateway public SPG;
     
     address public protocolFeeDestination;
@@ -68,9 +67,6 @@ contract LicenseMarketPlace {
         uint256 licensorIpId,
         uint256 amount
     ) public payable {
-        
-        LICENSE_REGISTRY.transferFrom(msg.sender, address(this), licensorIpId);
-        
 
         uint256 supply = sharesSupply[sharesSubject];
         require(supply > 0 || sharesSubject == msg.sender, "Only the shares' subject can buy the first share");
@@ -84,7 +80,6 @@ contract LicenseMarketPlace {
         (bool success1, ) = protocolFeeDestination.call{value: protocolFee}("");
         (bool success2, ) = sharesSubject.call{value: subjectFee}("");
         require(success1 && success2, "Unable to send funds");
-        
 
         SPG.mintLicensePIL(
             pilPolicy,

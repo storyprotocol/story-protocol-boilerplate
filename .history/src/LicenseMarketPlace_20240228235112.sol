@@ -68,9 +68,6 @@ contract LicenseMarketPlace {
         uint256 licensorIpId,
         uint256 amount
     ) public payable {
-        
-        LICENSE_REGISTRY.transferFrom(msg.sender, address(this), licensorIpId);
-        
 
         uint256 supply = sharesSupply[sharesSubject];
         require(supply > 0 || sharesSubject == msg.sender, "Only the shares' subject can buy the first share");

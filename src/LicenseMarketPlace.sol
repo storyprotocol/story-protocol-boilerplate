@@ -8,7 +8,9 @@ import {ILicenseRegistry} from "@story-protocol/protocol-core/contracts/interfac
 import {ILicenseMarketPlace} from "./ILicenseMarketPlace.sol";
 import {IERC6551Account} from "erc6551/interfaces/IERC6551Account.sol";
 import {IIPAccount} from "@story-protocol/protocol-core/contracts/interfaces/IIPAccount.sol";
-import {StoryProtocolGateway} from "@story-protocol/protocol-periphery/contracts/StoryProtocolGateway.sol";
+import {IStoryProtocolGateway} from "@story-protocol/protocol-periphery/contracts/StoryProtocolGateway.sol";
+import {SPG} from "@story-protocol/protocol-periphery/contracts/lib/SPG.sol";
+import {Metadata} from "@story-protocol/protocol-periphery/contracts/lib/Metadata.sol";
 
 contract LicenseMarketPlace is ILicenseMarketPlace {
     address public immutable NFT;
@@ -16,6 +18,8 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     IPAssetRegistry public immutable IPA_REGISTRY;
     ILicenseRegistry public immutable LICENSE_REGISTRY;
     uint256 public immutable POLICY_ID;
+    IStoryProtocolGateway public spg;
+    address public immutable DEFAULT_SPG_NFT;
 
     event Trade(
         address trader,
@@ -110,31 +114,83 @@ contract LicenseMarketPlace is ILicenseMarketPlace {
     }
 
     function registerExistingNFT(
-        uint256 chainId,
         address tokenContract,
         uint256 tokenId,
         string calldata ip_name,
-        string calldata url
+        bytes32 ip_content_hash,
+        string calldata ip_url
     ) external returns (uint256) {
-        address nftAccountAddr = IPA_REGISTRY.register(
-            chainId,
+        Metadata.Attribute[] memory attributes = new Metadata.Attribute[](0);
+        Metadata.IPMetadata memory ipMetadata = Metadata.IPMetadata({
+            name: ip_name,
+            hash: ip_content_hash,
+            url: ip_url,
+            customMetadata: attributes
+        });
+        SPG.Signature memory signature = SPG.Signature({
+            signer: address(this),
+            deadline: block.timestamp + 1000,
+            signature: ""
+        });
+        address nftAccountAddr = spg.registerIpWithSig(
+            POLICY_ID,
             tokenContract,
             tokenId,
-            msg.sender,
-            true,
-            _generateMetadata(
-                chainId,
-                tokenContract,
-                tokenId,
-                msg.sender,
-                ip_name,
-                url
-            )
+            ipMetadata,
+            signature
         );
+
         return _registerIpAsset(nftAccountAddr);
     }
 
-    function registerNewNFT() {}
+    function registerNewNFT(
+        string calldata nftName,
+        string calldata nftDescription,
+        string calldata nftUrl
+    ) external returns (uint256 tokenId, address tokenAddress) {
+        // Setup metadata attribution related to the NFT itself.
+        Metadata.Attribute[] memory nftAttributes = new Metadata.Attribute[](1);
+        bytes memory nftMetadata = abi.encode(
+            Metadata.TokenMetadata({
+                name: nftName,
+                description: nftDescription,
+                externalUrl: nftUrl,
+                image: "pic",
+                attributes: nftAttributes
+            })
+        );
+
+        // Setup metadata attribution related to the IP semantics.
+        Metadata.Attribute[] memory ipAttributes = new Metadata.Attribute[](1);
+        ipAttributes[0] = Metadata.Attribute({
+            key: "trademarkType",
+            value: "merchandising"
+        });
+        Metadata.IPMetadata memory ipMetadata = Metadata.IPMetadata({
+            name: "name for your IP asset",
+            hash: bytes32("your IP asset content hash"),
+            url: nftUrl,
+            customMetadata: ipAttributes
+        });
+
+        SPG.Signature memory signature = SPG.Signature({
+            signer: address(this),
+            deadline: block.timestamp + 1000,
+            signature: ""
+        });
+
+        (tokenId, tokenAddress) = spg.mintAndRegisterIpWithSig(
+            POLICY_ID,
+            DEFAULT_SPG_NFT,
+            nftMetadata,
+            ipMetadata,
+            signature
+        );
+
+        _registerIpAsset(tokenAddress);
+
+        return (tokenId, tokenAddress);
+    }
 
     function _verifyOwner(
         address ownerAddr,

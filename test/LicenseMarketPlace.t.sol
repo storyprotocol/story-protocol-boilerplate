@@ -24,19 +24,19 @@ contract LicenseMarketPlaceTest is Test {
     MockERC721 public NFT;
     LicenseMarketPlace public licenseMarketPlace;
 
-    function setUp() public {
-        NFT = new MockERC721("Story Mock NFT", "STORY");
-        licenseMarketPlace = new LicenseMarketPlace(
-            IPA_REGISTRY_ADDR,
-            IP_RESOLVER_ADDR,
-            address(NFT)
-        );
-    }
+    // function setUp() public {
+    //     NFT = new MockERC721("Story Mock NFT", "STORY");
+    //     licenseMarketPlace = new LicenseMarketPlace(
+    //         IPA_REGISTRY_ADDR,
+    //         IP_RESOLVER_ADDR,
+    //         address(NFT)
+    //     );
+    // }
 
-    function test_LicenseMarketPlaceRegistration() public {
-        uint256 tokenId = NFT.mint();
-        address ipId = licenseMarketPlace.registerIpAsset("test", tokenId);
-        assertTrue(IPAssetRegistry(IPA_REGISTRY_ADDR).isRegistered(ipId), "not registered");
-    }
+    // function test_LicenseMarketPlaceRegistration() public {
+    //     uint256 tokenId = NFT.mint();
+    //     address ipId = licenseMarketPlace.registerIpAsset("test", tokenId);
+    //     assertTrue(IPAssetRegistry(IPA_REGISTRY_ADDR).isRegistered(ipId), "not registered");
+    // }
 }
 

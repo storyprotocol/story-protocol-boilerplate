@@ -29,6 +29,11 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-5.0.1.tgz#ebc163cbed2de6b8b69bff628261d18deb912a81"
   integrity sha512-MvaLoPnVcoZr/qqZP+4cl9piuR4gg0iIGgxVSZ/AL1iId3M6IdEHzz9Naw5Lirl4KKBI6ciTVnX07yL4dOMIJg==
 
+"@openzeppelin/contracts-upgradeable@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-5.0.2.tgz#3e5321a2ecdd0b206064356798c21225b6ec7105"
+  integrity sha512-0MmkHSHiW2NRFiT9/r5Lu4eJq5UJ4/tzlOgYXNAIj/ONkQTVnz22pLxDvp4C4uZ9he7ZFvGn3Driptn1/iU7tQ==
+
 "@openzeppelin/contracts@5.0.1":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.0.1.tgz#93da90fc209a0a4ff09c1deb037fbb35e4020890"
@@ -80,10 +85,10 @@
     "@openzeppelin/contracts-upgradeable" "5.0.1"
     erc6551 "^0.3.1"
 
-"@story-protocol/protocol-periphery@^1.0.0-beta-rc2":
-  version "1.0.0-beta-rc2"
-  resolved "https://registry.yarnpkg.com/@story-protocol/protocol-periphery/-/protocol-periphery-1.0.0-beta-rc2.tgz#818242ce9a23cf2f2177addb7145dc573c9ffcea"
-  integrity sha512-hf1HXOq4AS3RKW1DPsEB78wCB6B3g/EbNNC//HI3IUK+j7bDxHMV6sbEzDV8HBgYgWDcbY8JsOEkAkeJn5bErg==
+"@story-protocol/protocol-periphery@^1.0.0-beta-rc3":
+  version "1.0.0-beta-rc3"
+  resolved "https://registry.yarnpkg.com/@story-protocol/protocol-periphery/-/protocol-periphery-1.0.0-beta-rc3.tgz#0c829e22af2a65e9d1973df8ff7131d3b57484b0"
+  integrity sha512-YZpOK8w+5i1k1EXrkC+nxcQ01YbWAQJytslDVsqoDp6Xc6clLC//L/5esKhC8DTRo8JjW4r+nFWyWFGJyhdxVg==
   dependencies:
     "@openzeppelin/contracts" "5.0.1"
     "@openzeppelin/contracts-upgradeable" "5.0.1"

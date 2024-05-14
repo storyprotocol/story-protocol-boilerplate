@@ -1,59 +1,62 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
-import { stdJson } from "forge-std/Script.sol";
 import { Test } from "forge-std/Test.sol";
-
-import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IPAssetRegistry } from "@story-protocol/protocol-core/contracts/registries/IPAssetRegistry.sol";
-import { IPResolver } from "@story-protocol/protocol-core/contracts/resolvers/IPResolver.sol";
+import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
 import { IPARegistrar } from "../src/IPARegistrar.sol";
-
-contract MockERC721 is ERC721 {
-    uint256 public totalSupply = 0;
-
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
-
-    function mint() external returns (uint256 id) {
-        id = totalSupply++;
-        _mint(msg.sender, id);
-    }
-}
+import { SimpleNFT } from "../src/SimpleNFT.sol";
 
 contract IPARegistrarTest is Test {
+    address internal alice = address(0xa11ce);
 
-    using stdJson for string;
+    // Protocol Core v1 addresses
+    // (see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts)
+    address internal ipAssetRegistryAddr = 0xd43fE0d865cb5C26b1351d3eAf2E3064BE3276F6;
+    // Protocol Periphery v1 addresses
+    // (see https://github.com/storyprotocol/protocol-periphery-v1/blob/main/deploy-out/deployment-11155111.json)
+    address internal storyProtocolGatewayAddr = 0x69415CE984A79a3Cfbe3F51024C63b6C107331e3;
 
-    address internal ipAssetRegistryAddr;
-    address internal licensingModuleAddr;
-    address internal ipResolverAddr;
+    IPAssetRegistry public ipAssetRegistry;
+    ISPGNFT public spgNft;
 
-    MockERC721 public NFT;
     IPARegistrar public ipaRegistrar;
+    SimpleNFT public simpleNft;
 
     function setUp() public {
-        _readProtocolAddresses();
-        NFT = new MockERC721("Story Mock NFT", "STORY");
-        ipaRegistrar = new IPARegistrar(
-            ipAssetRegistryAddr,
-            ipResolverAddr,
-            address(NFT)
-        );
+        ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
+        ipaRegistrar = new IPARegistrar(ipAssetRegistryAddr, storyProtocolGatewayAddr);
+        simpleNft = SimpleNFT(ipaRegistrar.SIMPLE_NFT());
+        spgNft = ISPGNFT(ipaRegistrar.SPG_NFT());
+
+        vm.label(address(ipAssetRegistry), "IPAssetRegistry");
+        vm.label(address(simpleNft), "SimpleNFT");
+        vm.label(address(spgNft), "SPGNFT");
+        vm.label(address(0x000000006551c19487814612e58FE06813775758), "ERC6551Registry");
     }
 
-    function test_IPARegistration() public {
-        vm.startPrank(address(ipaRegistrar));
-        uint256 tokenId = NFT.mint();
-        ipaRegistrar.register("test", tokenId);
+    function test_mintIp() public {
+        uint256 expectedTokenId = simpleNft.nextTokenId();
+        address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(simpleNft), expectedTokenId);
+
+        vm.prank(alice);
+        (address ipId, uint256 tokenId) = ipaRegistrar.mintIp();
+
+        assertEq(ipId, expectedIpId);
+        assertEq(tokenId, expectedTokenId);
+        assertEq(simpleNft.ownerOf(tokenId), alice);
     }
 
-    function _readProtocolAddresses() internal {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/node_modules/@story-protocol/protocol-core/deploy-out/deployment-11155111.json");
-        string memory json = vm.readFile(path);
-        ipAssetRegistryAddr = json.readAddress(".main.IPAssetRegistry");
-        ipResolverAddr = json.readAddress(".main.IPResolver");
+    function test_spgMintIp() public {
+        uint256 expectedTokenId = spgNft.totalSupply() + 1;
+        address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(spgNft), expectedTokenId);
 
+        vm.prank(alice);
+        (address ipId, uint256 tokenId) = ipaRegistrar.spgMintIp();
+
+        assertEq(ipId, expectedIpId);
+        assertEq(tokenId, expectedTokenId);
+        assertEq(spgNft.ownerOf(tokenId), alice);
     }
 }

@@ -10,12 +10,17 @@
   "license": "MIT",
   "devDependencies": {
     "ds-test": "https://github.com/dapphub/ds-test",
-    "forge-std": "github:foundry-rs/forge-std#v1.7.6"
+    "forge-std": "github:foundry-rs/forge-std#v1.7.6",
+    "prettier": "^3.2.5",
+    "prettier-plugin-solidity": "^1.3.1",
+    "solhint": "^5.0.1",
+    "solhint-community": "^4.0.0",
+    "solhint-plugin-prettier": "^0.1.0"
   },
   "dependencies": {
     "@openzeppelin/contracts": "5.0.1",
     "@openzeppelin/contracts-upgradeable": "5.0.1",
-    "@story-protocol/protocol-core": "^1.0.0-beta-rc6",
-    "@story-protocol/protocol-periphery": "^1.0.0-beta-rc3"
+    "@story-protocol/protocol-core": "github:storyprotocol/protocol-core-v1#v1.0.0",
+    "@story-protocol/protocol-periphery": "github:storyprotocol/protocol-periphery-v1#main"
   }
 }

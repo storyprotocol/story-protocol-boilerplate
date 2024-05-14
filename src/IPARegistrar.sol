@@ -8,6 +8,7 @@ import { SPGNFT } from "@storyprotocol/periphery/SPGNFT.sol";
 
 import { SimpleNFT } from "./SimpleNFT.sol";
 
+/// @notice Register an NFT as an IP Account.
 contract IPARegistrar {
     IPAssetRegistry public immutable IP_ASSET_REGISTRY;
     StoryProtocolGateway public immutable SPG;

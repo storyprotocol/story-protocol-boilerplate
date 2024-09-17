@@ -13,10 +13,10 @@ contract IPARegistrarTest is Test {
 
     // Protocol Core v1 addresses
     // (see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts)
-    address internal ipAssetRegistryAddr = 0xd43fE0d865cb5C26b1351d3eAf2E3064BE3276F6;
+    address internal ipAssetRegistryAddr = 0xe34A78B3d658aF7ad69Ff1EFF9012ECa025a14Be;
     // Protocol Periphery v1 addresses
     // (see https://github.com/storyprotocol/protocol-periphery-v1/blob/main/deploy-out/deployment-11155111.json)
-    address internal storyProtocolGatewayAddr = 0x69415CE984A79a3Cfbe3F51024C63b6C107331e3;
+    address internal storyProtocolGatewayAddr = 0xAceb5E631d743AF76aF69414eC8D356c13435E59;
 
     IPAssetRegistry public ipAssetRegistry;
     ISPGNFT public spgNft;

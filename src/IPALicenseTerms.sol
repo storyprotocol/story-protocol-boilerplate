@@ -30,8 +30,8 @@ contract IPALicenseTerms {
         ipId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), tokenId);
 
         // Then, attach a selection of license terms from the PILicenseTemplate, which is already registered.
-        // Note that licenseTermsId = 1 is a random selection of license terms already registered by anotehr user.
-        LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), 1);
+        // Note that licenseTermsId = 2 is a random selection of license terms already registered by another user.
+        LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), 2);
 
         // Finally, transfer the NFT to the msg.sender.
         SIMPLE_NFT.transferFrom(address(this), msg.sender, tokenId);

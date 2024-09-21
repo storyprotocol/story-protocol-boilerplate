@@ -5,6 +5,7 @@ import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.
 import { StoryProtocolGateway } from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import { IStoryProtocolGateway as ISPG } from "@storyprotocol/periphery/interfaces/IStoryProtocolGateway.sol";
 import { SPGNFT } from "@storyprotocol/periphery/SPGNFT.sol";
+import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
 import { SimpleNFT } from "./SimpleNFT.sol";
 
@@ -22,14 +23,20 @@ contract IPARegistrar {
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
         // Create a new NFT collection via SPG
         SPG_NFT = SPGNFT(
-            SPG.createCollection({
-                name: "SPG IP NFT",
-                symbol: "SPIN",
-                maxSupply: 10000,
-                mintFee: 0,
-                mintFeeToken: address(0),
-                owner: address(this)
-            })
+            SPG.createCollection(
+                ISPGNFT.InitParams({
+                    name: "Test Collection",
+                    symbol: "TEST",
+                    baseURI: "https://test-base-uri.com/",
+                    maxSupply: 100,
+                    mintFee: 0,
+                    mintFeeToken: address(0),
+                    mintFeeRecipient: address(this),
+                    owner: address(this),
+                    mintOpen: true,
+                    isPublicMinting: false
+                })
+            )
         );
     }
 
@@ -48,8 +55,9 @@ contract IPARegistrar {
             address(SPG_NFT),
             msg.sender,
             ISPG.IPMetadata({
-                metadataURI: "ip-metadata-uri",
-                metadataHash: keccak256("ip-metadata-uri-content"),
+                ipMetadataURI: "ip-metadata-uri",
+                ipMetadataHash: keccak256("ip-metadata-uri-content"),
+                nftMetadataURI: "nft-metadata-uri",
                 nftMetadataHash: keccak256("nft-metadata-uri-content")
             })
         );

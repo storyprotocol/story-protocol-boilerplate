@@ -14,12 +14,16 @@ contract IPARemixTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);
 
-    // Protocol Core v1 addresses
-    // (see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts)
+    // For addresses, see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts
+    // Protocol Core - IPAssetRegistry
     address internal ipAssetRegistryAddr = 0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B;
+    // Protocol Core - LicensingModule
     address internal licensingModuleAddr = 0xd81fd78f557b457b4350cB95D20b547bFEb4D857;
+    // Protocol Core - LicenseRegistry
     address internal licenseRegistryAddr = 0xedf8e338F05f7B1b857C3a8d3a0aBB4bc2c41723;
+    // Protocol Core - LicenseToken
     address internal licenseTokenAddr = 0xc7A302E03cd7A304394B401192bfED872af501BE;
+    // Protocol Core - PILicenseTemplate
     address internal pilTemplateAddr = 0x0752f61E59fD2D39193a74610F1bd9a6Ade2E3f9;
 
     IPAssetRegistry public ipAssetRegistry;

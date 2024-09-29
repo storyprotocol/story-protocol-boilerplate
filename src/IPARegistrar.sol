@@ -54,10 +54,18 @@ contract IPARegistrar {
             address(SPG_NFT),
             msg.sender,
             ISPG.IPMetadata({
-                ipMetadataURI: "ip-metadata-uri",
-                ipMetadataHash: keccak256("ip-metadata-uri-content"),
-                nftMetadataURI: "nft-metadata-uri",
-                nftMetadataHash: keccak256("nft-metadata-uri-content")
+                ipMetadataURI: "https://ipfs.io/ipfs/QmZHfQdFA2cb3ASdmeGS5K6rZjz65osUddYMURDx21bT73",
+                ipMetadataHash: keccak256(
+                    abi.encodePacked(
+                        "{'title':'My IP Asset','description':'This is a test IP asset','ipType':'','relationships':[],'createdAt':'','watermarkImg':'https://picsum.photos/200','creators':[],'media':[],'attributes':[{'key':'Rarity','value':'Legendary'}],'tags':[]}"
+                    )
+                ),
+                nftMetadataURI: "https://ipfs.io/ipfs/QmRL5PcK66J1mbtTZSw1nwVqrGxt98onStx6LgeHTDbEey",
+                nftMetadataHash: keccak256(
+                    abi.encodePacked(
+                        "{'name':'Test NFT','description':'This is a test NFT','image':'https://picsum.photos/200'}"
+                    )
+                )
             })
         );
     }

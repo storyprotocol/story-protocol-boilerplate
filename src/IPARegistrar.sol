@@ -4,7 +4,6 @@ pragma solidity ^0.8.23;
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 import { StoryProtocolGateway } from "@storyprotocol/periphery/StoryProtocolGateway.sol";
 import { IStoryProtocolGateway as ISPG } from "@storyprotocol/periphery/interfaces/IStoryProtocolGateway.sol";
-import { SPGNFT } from "@storyprotocol/periphery/SPGNFT.sol";
 import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
 import { SimpleNFT } from "./SimpleNFT.sol";
@@ -14,7 +13,7 @@ contract IPARegistrar {
     IPAssetRegistry public immutable IP_ASSET_REGISTRY;
     StoryProtocolGateway public immutable SPG;
     SimpleNFT public immutable SIMPLE_NFT;
-    SPGNFT public immutable SPG_NFT;
+    ISPGNFT public immutable SPG_NFT;
 
     constructor(address ipAssetRegistry, address storyProtocolGateway) {
         IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
@@ -22,7 +21,7 @@ contract IPARegistrar {
         // Create a new Simple NFT collection
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
         // Create a new NFT collection via SPG
-        SPG_NFT = SPGNFT(
+        SPG_NFT = ISPGNFT(
             SPG.createCollection(
                 ISPGNFT.InitParams({
                     name: "Test Collection",

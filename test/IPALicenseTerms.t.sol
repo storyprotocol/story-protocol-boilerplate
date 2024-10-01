@@ -8,6 +8,7 @@ import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.
 import { IPALicenseTerms } from "../src/IPALicenseTerms.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 
+// Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPALicenseTerms.t.sol
 contract IPALicenseTermsTest is Test {
     address internal alice = address(0xa11ce);
 

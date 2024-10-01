@@ -2,8 +2,8 @@
 pragma solidity ^0.8.23;
 
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { StoryProtocolGateway } from "@storyprotocol/periphery/StoryProtocolGateway.sol";
-import { IStoryProtocolGateway as ISPG } from "@storyprotocol/periphery/interfaces/IStoryProtocolGateway.sol";
+import { RegistrationWorkflows } from "@storyprotocol/periphery/workflows/RegistrationWorkflows.sol";
+import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.sol";
 import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
 import { SimpleNFT } from "./SimpleNFT.sol";
@@ -11,18 +11,18 @@ import { SimpleNFT } from "./SimpleNFT.sol";
 /// @notice Register an NFT as an IP Account.
 contract IPARegistrar {
     IPAssetRegistry public immutable IP_ASSET_REGISTRY;
-    StoryProtocolGateway public immutable SPG;
+    RegistrationWorkflows public immutable REGISTRATION_WORKFLOWS;
     SimpleNFT public immutable SIMPLE_NFT;
     ISPGNFT public immutable SPG_NFT;
 
-    constructor(address ipAssetRegistry, address storyProtocolGateway) {
+    constructor(address ipAssetRegistry, address registrationWorkflows) {
         IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
-        SPG = StoryProtocolGateway(storyProtocolGateway);
+        REGISTRATION_WORKFLOWS = RegistrationWorkflows(registrationWorkflows);
         // Create a new Simple NFT collection
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
         // Create a new NFT collection via SPG
         SPG_NFT = ISPGNFT(
-            SPG.createCollection(
+            REGISTRATION_WORKFLOWS.createCollection(
                 ISPGNFT.InitParams({
                     name: "Test Collection",
                     symbol: "TEST",
@@ -50,10 +50,10 @@ contract IPARegistrar {
     /// @notice Mint an IP NFT and register it as an IP Account via Story Protocol Gateway (periphery).
     /// @dev Requires the collection to be created via SPG (createCollection).
     function spgMintIp() external returns (address ipId, uint256 tokenId) {
-        (ipId, tokenId) = SPG.mintAndRegisterIp(
+        (ipId, tokenId) = REGISTRATION_WORKFLOWS.mintAndRegisterIp(
             address(SPG_NFT),
             msg.sender,
-            ISPG.IPMetadata({
+            WorkflowStructs.IPMetadata({
                 ipMetadataURI: "https://ipfs.io/ipfs/QmZHfQdFA2cb3ASdmeGS5K6rZjz65osUddYMURDx21bT73",
                 ipMetadataHash: keccak256(
                     abi.encodePacked(

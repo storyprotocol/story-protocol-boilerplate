@@ -8,6 +8,7 @@ import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.
 import { IPALicenseToken } from "../src/IPALicenseToken.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 
+// Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPALicenseToken.t.sol
 contract IPALicenseTokenTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);

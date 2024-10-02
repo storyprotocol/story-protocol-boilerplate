@@ -50,9 +50,6 @@ contract IPARegistrarTest is Test {
 
     function test_spgMintIp() public {
         uint256 expectedTokenId = spgNft.totalSupply() + 1;
-        emit log_named_uint("chain id", block.chainid);
-        emit log_named_address("spg address", address(spgNft));
-        emit log_named_uint("expected token id", expectedTokenId);
         address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(spgNft), expectedTokenId);
 
         vm.prank(alice);

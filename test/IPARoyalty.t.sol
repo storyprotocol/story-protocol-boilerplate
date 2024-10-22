@@ -23,23 +23,23 @@ contract IPARoyaltyTest is Test {
 
     // For addresses, see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistryAddr = 0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B;
+    address internal ipAssetRegistryAddr = 0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40;
     // Protocol Core - LicensingModule
-    address internal licensingModuleAddr = 0xd81fd78f557b457b4350cB95D20b547bFEb4D857;
+    address internal licensingModuleAddr = 0xC8f165950411504eA130692B87A7148e469f7090;
     // Protocol Core - LicenseRegistry
-    address internal licenseRegistryAddr = 0xedf8e338F05f7B1b857C3a8d3a0aBB4bc2c41723;
+    address internal licenseRegistryAddr = 0x4D71a082DE74B40904c1d89d9C3bfB7079d4c542;
     // Protocol Core - LicenseToken
-    address internal licenseTokenAddr = 0xc7A302E03cd7A304394B401192bfED872af501BE;
+    address internal licenseTokenAddr = 0xd8aEF404432a2b3363479A6157285926B6B3b743;
     // Protocol Core - PILicenseTemplate
-    address internal pilTemplateAddr = 0x0752f61E59fD2D39193a74610F1bd9a6Ade2E3f9;
+    address internal pilTemplateAddr = 0xbB7ACFBE330C56aA9a3aEb84870743C3566992c3;
     // Protocol Periphery - RoyaltyWorkflows
-    address internal royaltyWorkflowsAddr = 0x24f571e4982163bC166E594De289D6b754cB82A5;
+    address internal royaltyWorkflowsAddr = 0xc757921ee0f7c8E935d44BFBDc2602786e0eda6C;
     // Protocol Periphery - LicenseAttachmentWorkflows
-    address internal licenseAttachmentWorkflowsAddr = 0x96D26F998a56D6Ee34Fb581d26aAEb94e71e3929;
+    address internal licenseAttachmentWorkflowsAddr = 0x1B95144b62B4566501482e928aa435Dd205fE71B;
     // Protocol Core - RoyaltyPolicyLAP
-    address internal royaltyPolicyLAPAddr = 0x4074CEC2B3427f983D14d0C5E962a06B7162Ab92;
+    address internal royaltyPolicyLAPAddr = 0x793Df8d32c12B0bE9985FFF6afB8893d347B6686;
     // Protocol Core - RoyaltyModule
-    address internal royaltyModuleAddr = 0x3C27b2D7d30131D4b58C3584FD7c86e3358744de;
+    address internal royaltyModuleAddr = 0xaCb5764E609aa3a5ED36bA74ba59679246Cb0963;
     // Protocol Core - SUSD
     address internal susdAddr = 0x91f6F05B08c16769d3c85867548615d270C42fC7;
 
@@ -90,12 +90,6 @@ contract IPARoyaltyTest is Test {
         // this contract mints to alice
         uint256 ancestorTokenId = simpleNft.mint(alice);
         address ancestorIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), ancestorTokenId);
-
-        // transfer all ancestor royalties tokens to the claimer of the ancestor IP
-        // IpRoyaltyVault ancestorIpRoyaltyVault = IpRoyaltyVault(royaltyModule.ipRoyaltyVaults(ancestorIpId));
-
-        // vm.prank(ancestorIpId);
-        // ancestorIpRoyaltyVault.transfer(alice, ancestorIpRoyaltyVault.totalSupply());
 
         uint256 licenseTermsId = pilTemplate.registerLicenseTerms(
             PILFlavors.commercialRemix({
@@ -152,11 +146,12 @@ contract IPARoyaltyTest is Test {
         (uint256 snapshotId, uint256[] memory amountsClaimed) = royaltyWorkflows
             .transferToVaultAndSnapshotAndClaimByTokenBatch({
                 ancestorIpId: ancestorIpId,
-                claimer: alice,
+                claimer: ancestorIpId,
                 royaltyClaimDetails: claimDetails
             });
 
         assertEq(amountsClaimed[0], 1);
         assertEq(susd.balanceOf(ancestorIpId), 1);
+        assertEq(susd.balanceOf(royaltyModule.ipRoyaltyVaults(childIpId)), 9);
     }
 }

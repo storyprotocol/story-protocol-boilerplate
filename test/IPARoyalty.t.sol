@@ -92,10 +92,10 @@ contract IPARoyaltyTest is Test {
         address ancestorIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), ancestorTokenId);
 
         // transfer all ancestor royalties tokens to the claimer of the ancestor IP
-        IpRoyaltyVault ancestorIpRoyaltyVault = IpRoyaltyVault(royaltyModule.ipRoyaltyVaults(ancestorIpId));
+        // IpRoyaltyVault ancestorIpRoyaltyVault = IpRoyaltyVault(royaltyModule.ipRoyaltyVaults(ancestorIpId));
 
-        vm.prank(ancestorIpId);
-        ancestorIpRoyaltyVault.transfer(alice, ancestorIpRoyaltyVault.totalSupply());
+        // vm.prank(ancestorIpId);
+        // ancestorIpRoyaltyVault.transfer(alice, ancestorIpRoyaltyVault.totalSupply());
 
         uint256 licenseTermsId = pilTemplate.registerLicenseTerms(
             PILFlavors.commercialRemix({

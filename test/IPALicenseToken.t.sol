@@ -6,6 +6,7 @@ import { LicenseToken } from "@storyprotocol/core/LicenseToken.sol";
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 
 import { IPALicenseToken } from "../src/IPALicenseToken.sol";
+import { IPALicenseTerms } from "../src/IPALicenseTerms.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 
 // Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPALicenseToken.t.sol
@@ -31,19 +32,21 @@ contract IPALicenseTokenTest is Test {
     LicenseToken public licenseToken;
 
     IPALicenseToken public ipaLicenseToken;
+    IPALicenseTerms public ipaLicenseTerms;
     SimpleNFT public simpleNft;
 
     function setUp() public {
         ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
         licenseToken = LicenseToken(licenseTokenAddr);
-        ipaLicenseToken = new IPALicenseToken(
+        ipaLicenseTerms = new IPALicenseTerms(
             ipAssetRegistryAddr,
             licensingModuleAddr,
             pilTemplateAddr,
             royaltyPolicyLAPAddr,
             susdAddr
         );
-        simpleNft = SimpleNFT(ipaLicenseToken.SIMPLE_NFT());
+        ipaLicenseToken = new IPALicenseToken(licensingModuleAddr, pilTemplateAddr);
+        simpleNft = SimpleNFT(ipaLicenseTerms.SIMPLE_NFT());
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
         vm.label(address(licensingModuleAddr), "LicensingModule");
@@ -58,8 +61,14 @@ contract IPALicenseTokenTest is Test {
         address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(simpleNft), expectedTokenId);
 
         vm.prank(alice);
-        (address ipId, uint256 tokenId, uint256 licenseTermsId, uint256 startLicenseTokenId) = ipaLicenseToken
-            .mintLicenseToken({ ltAmount: 2, ltRecipient: bob });
+        (address ipId, uint256 tokenId, uint256 licenseTermsId) = ipaLicenseTerms.attachLicenseTerms();
+
+        uint256 startLicenseTokenId = ipaLicenseToken.mintLicenseToken({
+            ipId: ipId,
+            licenseTermsId: licenseTermsId,
+            ltAmount: 2,
+            ltRecipient: bob
+        });
 
         assertEq(ipId, expectedIpId);
         assertEq(tokenId, expectedTokenId);

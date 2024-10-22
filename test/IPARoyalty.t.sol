@@ -14,6 +14,7 @@ import { RoyaltyWorkflows } from "@storyprotocol/periphery/workflows/RoyaltyWork
 import { LicenseAttachmentWorkflows } from "@storyprotocol/periphery/workflows/LicenseAttachmentWorkflows.sol";
 import { IpRoyaltyVault } from "@storyprotocol/core/modules/royalty/policies/IpRoyaltyVault.sol";
 import { IPALicenseToken } from "../src/IPALicenseToken.sol";
+import { IPALicenseTerms } from "../src/IPALicenseTerms.sol";
 import { IPARoyalty } from "../src/IPARoyalty.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 import { SUSD } from "../src/SUSD.sol";
@@ -58,6 +59,8 @@ contract IPARoyaltyTest is Test {
     SUSD public susd;
     IPARoyalty public ipaRoyalty;
     IPALicenseToken public ipaLicenseToken;
+    IPALicenseTerms public ipaLicenseTerms;
+
     function setUp() public {
         ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
         licensingModule = LicensingModule(licensingModuleAddr);
@@ -67,16 +70,17 @@ contract IPARoyaltyTest is Test {
         licenseAttachmentWorkflows = LicenseAttachmentWorkflows(licenseAttachmentWorkflowsAddr);
         pilTemplate = PILicenseTemplate(pilTemplateAddr);
         royaltyModule = RoyaltyModule(royaltyModuleAddr);
-        ipaLicenseToken = new IPALicenseToken(
+        ipaRoyalty = new IPARoyalty(royaltyPolicyLAPAddr, royaltyWorkflowsAddr, susdAddr);
+        ipaLicenseTerms = new IPALicenseTerms(
             ipAssetRegistryAddr,
             licensingModuleAddr,
             pilTemplateAddr,
             royaltyPolicyLAPAddr,
             susdAddr
         );
-        ipaRoyalty = new IPARoyalty(royaltyPolicyLAPAddr, royaltyWorkflowsAddr, susdAddr);
+        ipaLicenseToken = new IPALicenseToken(licensingModuleAddr, pilTemplateAddr);
+        simpleNft = SimpleNFT(ipaLicenseTerms.SIMPLE_NFT());
 
-        simpleNft = SimpleNFT(ipaLicenseToken.SIMPLE_NFT());
         susd = SUSD(susdAddr);
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
@@ -98,11 +102,17 @@ contract IPARoyaltyTest is Test {
         susd.approve(address(royaltyModule), 10);
 
         vm.prank(alice);
-        (address ancestorIpId, uint256 tokenId, uint256 licenseTermsId, uint256 startLicenseTokenId) = ipaLicenseToken
-            .mintLicenseToken({ ltAmount: 2, ltRecipient: bob });
+        (address ancestorIpId, uint256 tokenId, uint256 licenseTermsId) = ipaLicenseTerms.attachLicenseTerms();
+
+        uint256 startLicenseTokenId = ipaLicenseToken.mintLicenseToken({
+            ipId: ancestorIpId,
+            licenseTermsId: licenseTermsId,
+            ltAmount: 2,
+            ltRecipient: bob
+        });
 
         // this contract mints to bob
-        vm.prank(address(ipaLicenseToken)); // need to prank to mint simpleNft
+        vm.prank(address(ipaLicenseTerms)); // need to prank to mint simpleNft
         uint256 childTokenId = simpleNft.mint(bob);
         address childIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), childTokenId);
 

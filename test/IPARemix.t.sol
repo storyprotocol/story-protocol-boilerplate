@@ -8,6 +8,7 @@ import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.
 import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
 
 import { IPALicenseToken } from "../src/IPALicenseToken.sol";
+import { IPALicenseTerms } from "../src/IPALicenseTerms.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 
 // Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPARemix.t.sol
@@ -37,6 +38,7 @@ contract IPARemixTest is Test {
     LicenseToken public licenseToken;
 
     IPALicenseToken public ipaLicenseToken;
+    IPALicenseTerms public ipaLicenseTerms;
     SimpleNFT public simpleNft;
 
     function setUp() public {
@@ -44,14 +46,15 @@ contract IPARemixTest is Test {
         licensingModule = LicensingModule(licensingModuleAddr);
         licenseRegistry = LicenseRegistry(licenseRegistryAddr);
         licenseToken = LicenseToken(licenseTokenAddr);
-        ipaLicenseToken = new IPALicenseToken(
+        ipaLicenseTerms = new IPALicenseTerms(
             ipAssetRegistryAddr,
             licensingModuleAddr,
             pilTemplateAddr,
             royaltyPolicyLAPAddr,
             susdAddr
         );
-        simpleNft = SimpleNFT(ipaLicenseToken.SIMPLE_NFT());
+        ipaLicenseToken = new IPALicenseToken(licensingModuleAddr, pilTemplateAddr);
+        simpleNft = SimpleNFT(ipaLicenseTerms.SIMPLE_NFT());
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
         vm.label(address(licensingModuleAddr), "LicensingModule");
@@ -71,8 +74,14 @@ contract IPARemixTest is Test {
         address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(simpleNft), expectedTokenId);
 
         vm.prank(alice);
-        (address parentIpId, uint256 tokenId, uint256 licenseTermsId, uint256 startLicenseTokenId) = ipaLicenseToken
-            .mintLicenseToken({ ltAmount: 2, ltRecipient: bob });
+        (address parentIpId, uint256 tokenId, uint256 licenseTermsId) = ipaLicenseTerms.attachLicenseTerms();
+
+        uint256 startLicenseTokenId = ipaLicenseToken.mintLicenseToken({
+            ipId: parentIpId,
+            licenseTermsId: licenseTermsId,
+            ltAmount: 2,
+            ltRecipient: bob
+        });
 
         assertEq(parentIpId, expectedIpId);
         assertEq(tokenId, expectedTokenId);
@@ -85,7 +94,7 @@ contract IPARemixTest is Test {
         // Bob uses the minted License Token from Alice to register a derivative IP.
         //
 
-        vm.prank(address(ipaLicenseToken)); // need to prank to mint simpleNft
+        vm.prank(address(ipaLicenseTerms)); // need to prank to mint simpleNft
         tokenId = simpleNft.mint(address(bob));
         address childIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), tokenId);
 

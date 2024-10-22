@@ -12,6 +12,7 @@ import { RoyaltyModule } from "@storyprotocol/core/modules/royalty/RoyaltyModule
 import { IRoyaltyWorkflows } from "@storyprotocol/periphery/interfaces/workflows/IRoyaltyWorkflows.sol";
 import { RoyaltyWorkflows } from "@storyprotocol/periphery/workflows/RoyaltyWorkflows.sol";
 import { LicenseAttachmentWorkflows } from "@storyprotocol/periphery/workflows/LicenseAttachmentWorkflows.sol";
+import { IpRoyaltyVault } from "@storyprotocol/core/modules/royalty/policies/IpRoyaltyVault.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 import { SUSD } from "../src/SUSD.sol";
 
@@ -85,15 +86,16 @@ contract IPARoyaltyTest is Test {
         // setup this contract with funds to pay the child
         susd.mint(address(this), 100);
         susd.approve(address(royaltyModule), 10);
-        IpRoyaltyVault ancestorIpRoyaltyVault = IpRoyaltyVault(royaltyModule.ipRoyaltyVaults(ancestorIpId));
-
-        // transfer all ancestor royalties tokens to the claimer of the ancestor IP
-        vm.prank(ancestorIpId);
-        ancestorIpRoyaltyVault.transfer(address(this), ancestorIpRoyaltyVault.totalSupply());
 
         // this contract mints to alice
         uint256 ancestorTokenId = simpleNft.mint(alice);
         address ancestorIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), ancestorTokenId);
+
+        // transfer all ancestor royalties tokens to the claimer of the ancestor IP
+        IpRoyaltyVault ancestorIpRoyaltyVault = IpRoyaltyVault(royaltyModule.ipRoyaltyVaults(ancestorIpId));
+
+        vm.prank(ancestorIpId);
+        ancestorIpRoyaltyVault.transfer(alice, ancestorIpRoyaltyVault.totalSupply());
 
         uint256 licenseTermsId = pilTemplate.registerLicenseTerms(
             PILFlavors.commercialRemix({
@@ -150,7 +152,7 @@ contract IPARoyaltyTest is Test {
         (uint256 snapshotId, uint256[] memory amountsClaimed) = royaltyWorkflows
             .transferToVaultAndSnapshotAndClaimByTokenBatch({
                 ancestorIpId: ancestorIpId,
-                claimer: ancestorIpId,
+                claimer: alice,
                 royaltyClaimDetails: claimDetails
             });
 

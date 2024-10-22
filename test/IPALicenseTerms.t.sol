@@ -14,13 +14,17 @@ contract IPALicenseTermsTest is Test {
 
     // For addresses, see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistryAddr = 0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B;
+    address internal ipAssetRegistryAddr = 0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40;
     // Protocol Core - LicensingModule
-    address internal licensingModuleAddr = 0xd81fd78f557b457b4350cB95D20b547bFEb4D857;
+    address internal licensingModuleAddr = 0xC8f165950411504eA130692B87A7148e469f7090;
     // Protocol Core - LicenseRegistry
-    address internal licenseRegistryAddr = 0xedf8e338F05f7B1b857C3a8d3a0aBB4bc2c41723;
+    address internal licenseRegistryAddr = 0x4D71a082DE74B40904c1d89d9C3bfB7079d4c542;
     // Protocol Core - PILicenseTemplate
-    address internal pilTemplateAddr = 0x0752f61E59fD2D39193a74610F1bd9a6Ade2E3f9;
+    address internal pilTemplateAddr = 0xbB7ACFBE330C56aA9a3aEb84870743C3566992c3;
+    // Protocol Core - RoyaltyPolicyLAP
+    address internal royaltyPolicyLAPAddr = 0x793Df8d32c12B0bE9985FFF6afB8893d347B6686;
+    // Protocol Core - SUSD
+    address internal susdAddr = 0x91f6F05B08c16769d3c85867548615d270C42fC7;
 
     IPAssetRegistry public ipAssetRegistry;
     LicenseRegistry public licenseRegistry;
@@ -31,7 +35,13 @@ contract IPALicenseTermsTest is Test {
     function setUp() public {
         ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
         licenseRegistry = LicenseRegistry(licenseRegistryAddr);
-        ipaLicenseTerms = new IPALicenseTerms(ipAssetRegistryAddr, licensingModuleAddr, pilTemplateAddr);
+        ipaLicenseTerms = new IPALicenseTerms(
+            ipAssetRegistryAddr,
+            licensingModuleAddr,
+            pilTemplateAddr,
+            royaltyPolicyLAPAddr,
+            susdAddr
+        );
         simpleNft = SimpleNFT(ipaLicenseTerms.SIMPLE_NFT());
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
@@ -47,11 +57,9 @@ contract IPALicenseTermsTest is Test {
         address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(simpleNft), expectedTokenId);
 
         address expectedLicenseTemplate = pilTemplateAddr;
-        // This is the license terms that we are attaching in the IPALicenseTerms contract.
-        uint256 expectedLicenseTermsId = 2;
 
         vm.prank(alice);
-        (address ipId, uint256 tokenId) = ipaLicenseTerms.attachLicenseTerms();
+        (address ipId, uint256 tokenId, uint256 expectedLicenseTermsId) = ipaLicenseTerms.attachLicenseTerms();
 
         assertEq(ipId, expectedIpId);
         assertEq(tokenId, expectedTokenId);
@@ -59,15 +67,15 @@ contract IPALicenseTermsTest is Test {
 
         assertTrue(licenseRegistry.hasIpAttachedLicenseTerms(ipId, expectedLicenseTemplate, expectedLicenseTermsId));
         // We expect 2 because the IPA has the default license terms (licenseTermsId = 1)
-        // and the one we attached (licenseTermsId = 2).
+        // and the one we attached (expectedLicenseTermsId).
         assertEq(licenseRegistry.getAttachedLicenseTermsCount(ipId), 2);
 
         // Although an IP Asset has default license terms, index 0 is still the one we attached.
-        (address licenseTemplate, uint256 licenseTermsId) = licenseRegistry.getAttachedLicenseTerms({
+        (address licenseTemplate, uint256 attachedLicenseTermsId) = licenseRegistry.getAttachedLicenseTerms({
             ipId: ipId,
             index: 0
         });
         assertEq(licenseTemplate, expectedLicenseTemplate);
-        assertEq(licenseTermsId, expectedLicenseTermsId);
+        assertEq(attachedLicenseTermsId, expectedLicenseTermsId);
     }
 }

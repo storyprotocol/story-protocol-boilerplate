@@ -13,6 +13,8 @@ import { IRoyaltyWorkflows } from "@storyprotocol/periphery/interfaces/workflows
 import { RoyaltyWorkflows } from "@storyprotocol/periphery/workflows/RoyaltyWorkflows.sol";
 import { LicenseAttachmentWorkflows } from "@storyprotocol/periphery/workflows/LicenseAttachmentWorkflows.sol";
 import { IpRoyaltyVault } from "@storyprotocol/core/modules/royalty/policies/IpRoyaltyVault.sol";
+import { IPALicenseToken } from "../src/IPALicenseToken.sol";
+import { IPARoyalty } from "../src/IPARoyalty.sol";
 import { SimpleNFT } from "../src/SimpleNFT.sol";
 import { SUSD } from "../src/SUSD.sol";
 
@@ -54,7 +56,8 @@ contract IPARoyaltyTest is Test {
 
     SimpleNFT public simpleNft;
     SUSD public susd;
-
+    IPARoyalty public ipaRoyalty;
+    IPALicenseToken public ipaLicenseToken;
     function setUp() public {
         ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
         licensingModule = LicensingModule(licensingModuleAddr);
@@ -64,9 +67,16 @@ contract IPARoyaltyTest is Test {
         licenseAttachmentWorkflows = LicenseAttachmentWorkflows(licenseAttachmentWorkflowsAddr);
         pilTemplate = PILicenseTemplate(pilTemplateAddr);
         royaltyModule = RoyaltyModule(royaltyModuleAddr);
+        ipaLicenseToken = new IPALicenseToken(
+            ipAssetRegistryAddr,
+            licensingModuleAddr,
+            pilTemplateAddr,
+            royaltyPolicyLAPAddr,
+            susdAddr
+        );
+        ipaRoyalty = new IPARoyalty(royaltyPolicyLAPAddr, royaltyWorkflowsAddr, susdAddr);
 
-        // MAKE SURE TO LOOK BACK AT THIS IF IT SHOULD BE DEPLOYED OR NOT
-        simpleNft = new SimpleNFT("Simple IP NFT", "SIM");
+        simpleNft = SimpleNFT(ipaLicenseToken.SIMPLE_NFT());
         susd = SUSD(susdAddr);
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
@@ -83,44 +93,21 @@ contract IPARoyaltyTest is Test {
     }
 
     function test_royaltyIp() public {
-        // setup this contract with funds to pay the child
+        // ADMIN SETUP
         susd.mint(address(this), 100);
         susd.approve(address(royaltyModule), 10);
 
-        // this contract mints to alice
-        uint256 ancestorTokenId = simpleNft.mint(alice);
-        address ancestorIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), ancestorTokenId);
-
-        uint256 licenseTermsId = pilTemplate.registerLicenseTerms(
-            PILFlavors.commercialRemix({
-                mintingFee: 0,
-                commercialRevShare: 10 * 10 ** 6, // 10%
-                royaltyPolicy: royaltyPolicyLAPAddr,
-                currencyToken: address(susd)
-            })
-        );
-
         vm.prank(alice);
-        licensingModule.attachLicenseTerms(ancestorIpId, pilTemplateAddr, licenseTermsId);
-
-        // Then, mint a License Token from the attached license terms.
-        // Note that the License Token is minted to the ltRecipient.
-        vm.prank(bob);
-        uint256 licenseTokenId = licensingModule.mintLicenseTokens({
-            licensorIpId: ancestorIpId,
-            licenseTemplate: pilTemplateAddr,
-            licenseTermsId: licenseTermsId,
-            amount: 1,
-            receiver: bob,
-            royaltyContext: "" // for PIL, royaltyContext is empty string
-        });
+        (address ancestorIpId, uint256 tokenId, uint256 licenseTermsId, uint256 startLicenseTokenId) = ipaLicenseToken
+            .mintLicenseToken({ ltAmount: 2, ltRecipient: bob });
 
         // this contract mints to bob
+        vm.prank(address(ipaLicenseToken)); // need to prank to mint simpleNft
         uint256 childTokenId = simpleNft.mint(bob);
         address childIpId = ipAssetRegistry.register(block.chainid, address(simpleNft), childTokenId);
 
         uint256[] memory licenseTokenIds = new uint256[](1);
-        licenseTokenIds[0] = licenseTokenId;
+        licenseTokenIds[0] = startLicenseTokenId;
 
         vm.prank(bob);
         licensingModule.registerDerivativeWithLicenseTokens({
@@ -136,19 +123,7 @@ contract IPARoyaltyTest is Test {
         royaltyModule.payRoyaltyOnBehalf(childIpId, address(0), address(susd), 10);
 
         // now that child has been paid, parent must claim
-        IRoyaltyWorkflows.RoyaltyClaimDetails[] memory claimDetails = new IRoyaltyWorkflows.RoyaltyClaimDetails[](1);
-        claimDetails[0] = IRoyaltyWorkflows.RoyaltyClaimDetails({
-            childIpId: childIpId,
-            royaltyPolicy: royaltyPolicyLAPAddr,
-            currencyToken: address(susd),
-            amount: 1
-        });
-        (uint256 snapshotId, uint256[] memory amountsClaimed) = royaltyWorkflows
-            .transferToVaultAndSnapshotAndClaimByTokenBatch({
-                ancestorIpId: ancestorIpId,
-                claimer: ancestorIpId,
-                royaltyClaimDetails: claimDetails
-            });
+        (uint256 snapshotId, uint256[] memory amountsClaimed) = ipaRoyalty.claimRoyalty(ancestorIpId, childIpId, 1);
 
         assertEq(amountsClaimed[0], 1);
         assertEq(susd.balanceOf(ancestorIpId), 1);

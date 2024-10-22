@@ -26,7 +26,8 @@ contract IPARegistrar {
                 ISPGNFT.InitParams({
                     name: "Test Collection",
                     symbol: "TEST",
-                    baseURI: "https://test-base-uri.com/",
+                    baseURI: "",
+                    contractURI: "",
                     maxSupply: 100,
                     mintFee: 0,
                     mintFeeToken: address(0),

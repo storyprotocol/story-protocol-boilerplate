@@ -14,9 +14,9 @@ contract IPARegistrarTest is Test {
 
     // For addresses, see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistryAddr = 0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B;
+    address internal ipAssetRegistryAddr = 0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40;
     // Protocol Periphery - RegistrationWorkflows
-    address internal registrationWorkflowsAddr = 0x601C24bFA5Ae435162A5dC3cd166280C471d16c8;
+    address internal registrationWorkflowsAddr = 0xF403fcCAAE6C503D0CC1D25904A0B2cCd5B96C6F;
 
     IPAssetRegistry public ipAssetRegistry;
     ISPGNFT public spgNft;

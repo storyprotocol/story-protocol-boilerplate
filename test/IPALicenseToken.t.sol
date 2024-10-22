@@ -15,13 +15,17 @@ contract IPALicenseTokenTest is Test {
 
     // For addresses, see https://docs.storyprotocol.xyz/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistryAddr = 0x1a9d0d28a0422F26D31Be72Edc6f13ea4371E11B;
+    address internal ipAssetRegistryAddr = 0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40;
     // Protocol Core - LicensingModule
-    address internal licensingModuleAddr = 0xd81fd78f557b457b4350cB95D20b547bFEb4D857;
+    address internal licensingModuleAddr = 0xC8f165950411504eA130692B87A7148e469f7090;
     // Protocol Core - LicenseToken
-    address internal licenseTokenAddr = 0xc7A302E03cd7A304394B401192bfED872af501BE;
+    address internal licenseTokenAddr = 0xd8aEF404432a2b3363479A6157285926B6B3b743;
     // Protocol Core - PILicenseTemplate
-    address internal pilTemplateAddr = 0x0752f61E59fD2D39193a74610F1bd9a6Ade2E3f9;
+    address internal pilTemplateAddr = 0xbB7ACFBE330C56aA9a3aEb84870743C3566992c3;
+    // Protocol Core - RoyaltyPolicyLAP
+    address internal royaltyPolicyLAPAddr = 0x793Df8d32c12B0bE9985FFF6afB8893d347B6686;
+    // Protocol Core - SUSD
+    address internal susdAddr = 0x91f6F05B08c16769d3c85867548615d270C42fC7;
 
     IPAssetRegistry public ipAssetRegistry;
     LicenseToken public licenseToken;
@@ -32,7 +36,13 @@ contract IPALicenseTokenTest is Test {
     function setUp() public {
         ipAssetRegistry = IPAssetRegistry(ipAssetRegistryAddr);
         licenseToken = LicenseToken(licenseTokenAddr);
-        ipaLicenseToken = new IPALicenseToken(ipAssetRegistryAddr, licensingModuleAddr, pilTemplateAddr);
+        ipaLicenseToken = new IPALicenseToken(
+            ipAssetRegistryAddr,
+            licensingModuleAddr,
+            pilTemplateAddr,
+            royaltyPolicyLAPAddr,
+            susdAddr
+        );
         simpleNft = SimpleNFT(ipaLicenseToken.SIMPLE_NFT());
 
         vm.label(address(ipAssetRegistryAddr), "IPAssetRegistry");
@@ -48,10 +58,8 @@ contract IPALicenseTokenTest is Test {
         address expectedIpId = ipAssetRegistry.ipId(block.chainid, address(simpleNft), expectedTokenId);
 
         vm.prank(alice);
-        (address ipId, uint256 tokenId, uint256 startLicenseTokenId) = ipaLicenseToken.mintLicenseToken({
-            ltAmount: 2,
-            ltRecipient: bob
-        });
+        (address ipId, uint256 tokenId, uint256 licenseTermsId, uint256 startLicenseTokenId) = ipaLicenseToken
+            .mintLicenseToken({ ltAmount: 2, ltRecipient: bob });
 
         assertEq(ipId, expectedIpId);
         assertEq(tokenId, expectedTokenId);

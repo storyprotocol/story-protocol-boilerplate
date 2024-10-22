@@ -6,9 +6,9 @@ import { LicensingModule } from "@storyprotocol/core/modules/licensing/Licensing
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
-import { SUSD } from "./SUSD.sol";
+import { SUSD } from "./mocks/SUSD.sol";
 
-import { SimpleNFT } from "./SimpleNFT.sol";
+import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
 /// @notice Attach a Selected Programmable IP License Terms to an IP Account.
 contract IPALicenseTerms {

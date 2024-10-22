@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
 import { IRoyaltyWorkflows } from "@storyprotocol/periphery/interfaces/workflows/IRoyaltyWorkflows.sol";
-import { SUSD } from "./SUSD.sol";
+import { SUSD } from "./mocks/SUSD.sol";
 
 /// @notice Mint a License Token from Programmable IP License Terms attached to an IP Account.
 contract IPARoyalty {

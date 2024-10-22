@@ -6,7 +6,7 @@ import { RegistrationWorkflows } from "@storyprotocol/periphery/workflows/Regist
 import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.sol";
 import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
-import { SimpleNFT } from "./SimpleNFT.sol";
+import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
 /// @notice Register an NFT as an IP Account.
 contract IPARegistrar {

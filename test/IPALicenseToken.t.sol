@@ -7,7 +7,7 @@ import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.
 
 import { IPALicenseToken } from "../src/IPALicenseToken.sol";
 import { IPALicenseTerms } from "../src/IPALicenseTerms.sol";
-import { SimpleNFT } from "../src/SimpleNFT.sol";
+import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPALicenseToken.t.sol
 contract IPALicenseTokenTest is Test {

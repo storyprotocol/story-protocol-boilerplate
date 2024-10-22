@@ -6,7 +6,7 @@ import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.
 import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
 
 import { IPARegistrar } from "../src/IPARegistrar.sol";
-import { SimpleNFT } from "../src/SimpleNFT.sol";
+import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test: forge test --fork-url https://testnet.storyrpc.io/ --match-path test/IPARegistrar.t.sol
 contract IPARegistrarTest is Test {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
 
@@ -102,7 +102,8 @@ contract IPARoyaltyTest is Test {
         // now that it is derivative, we must give bob's ip Asset 10 susd for this example
         // need to use payRoyaltyOnBehalf
         //
-        // you have to approve the royalty module to spend on your behalf
+        // you have to approve the royalty module to spend on your behalf,
+        // which we did at the top of this function
         royaltyModule.payRoyaltyOnBehalf(childIpId, address(0), address(susd), 10);
 
         // now that child has been paid, parent must claim

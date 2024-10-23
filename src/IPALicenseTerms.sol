@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.26;
 
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";

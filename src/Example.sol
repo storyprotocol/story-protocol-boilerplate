@@ -2,17 +2,21 @@
 pragma solidity ^0.8.26;
 
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import { RegistrationWorkflows } from "@storyprotocol/periphery/workflows/RegistrationWorkflows.sol";
+import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.sol";
+import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
 import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
-import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
-import { SUSD } from "./mocks/SUSD.sol";
+import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 
+import { SUSD } from "./mocks/SUSD.sol";
 import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
-/// @notice Attach a Selected Programmable IP License Terms to an IP Account.
-contract IPALicenseTerms {
+/// @notice Register an NFT as an IP Account.
+contract Example {
     IPAssetRegistry public immutable IP_ASSET_REGISTRY;
+    LicenseRegistry public immutable LICENSE_REGISTRY;
     LicensingModule public immutable LICENSING_MODULE;
     PILicenseTemplate public immutable PIL_TEMPLATE;
     RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP;
@@ -24,24 +28,32 @@ contract IPALicenseTerms {
         address licensingModule,
         address pilTemplate,
         address royaltyPolicyLAP,
-        address susd
+        address susdToken
     ) {
         IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
         LICENSING_MODULE = LicensingModule(licensingModule);
         PIL_TEMPLATE = PILicenseTemplate(pilTemplate);
         ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(royaltyPolicyLAP);
-        SUSD_TOKEN = SUSD(susd);
+        SUSD_TOKEN = SUSD(susdToken);
         // Create a new Simple NFT collection
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
     }
 
-    function attachLicenseTerms() external returns (address ipId, uint256 tokenId, uint256 licenseTermsId) {
-        // First, mint an NFT and register it as an IP Account.
-        // Note that first we mint the NFT to this contract for ease of attaching license terms.
-        // We will transfer the NFT to the msg.sender at last.
+    /// @notice Mint an NFT, register it as an IP Asset, and attach License Terms to it.
+    /// @param receiver The address that will receive the NFT/IPA.
+    /// @return ipId The address of the IP Account.
+    /// @return tokenId The token ID of the NFT representing ownership of the IPA.
+    /// @return licenseTermsId The ID of the license terms.
+    function mintAndRegisterAndCreateTermsAndAttach(
+        address receiver
+    ) external returns (address ipId, uint256 tokenId, uint256 licenseTermsId) {
+        // We mint to this contract so that it has permissions
+        // to attach license terms to the IP Asset.
+        // We will later transfer it to the intended `receiver`
         tokenId = SIMPLE_NFT.mint(address(this));
         ipId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), tokenId);
 
+        // register license terms so we can attach them later
         licenseTermsId = PIL_TEMPLATE.registerLicenseTerms(
             PILFlavors.commercialRemix({
                 mintingFee: 0,
@@ -51,9 +63,10 @@ contract IPALicenseTerms {
             })
         );
 
+        // attach the license terms to the IP Asset
         LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), licenseTermsId);
 
-        // Finally, transfer the NFT to the msg.sender.
-        SIMPLE_NFT.transferFrom(address(this), msg.sender, tokenId);
+        // transfer the NFT to the receiver so it owns the IPA
+        SIMPLE_NFT.transferFrom(address(this), receiver, tokenId);
     }
 }

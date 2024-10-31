@@ -12,7 +12,7 @@ import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 // forge test --fork-url https://testnet.storyrpc.io/ --match-path test/Example.t.sol
 contract ExampleTest is Test {
     address internal alice = address(0xa11ce);
-
+    address internal bob = address(0xb0b);
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
     address internal ipAssetRegistry = 0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40;
@@ -60,5 +60,24 @@ contract ExampleTest is Test {
         });
         assertEq(licenseTemplate, pilTemplate);
         assertEq(attachedLicenseTermsId, licenseTermsId);
+    }
+
+    function test_mintLicenseTokenAndRegisterDerivative() public {
+        LicenseRegistry LICENSE_REGISTRY = LicenseRegistry(licenseRegistry);
+        IPAssetRegistry IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
+
+        (address parentIpId, uint256 parentTokenId, uint256 licenseTermsId) = EXAMPLE
+            .mintAndRegisterAndCreateTermsAndAttach(alice);
+
+        (address childIpId, uint256 childTokenId, uint256 licenseTokenId) = EXAMPLE
+            .mintLicenseTokenAndRegisterDerivative(parentIpId, licenseTermsId, bob);
+
+        assertTrue(LICENSE_REGISTRY.hasDerivativeIps(parentIpId));
+        assertTrue(LICENSE_REGISTRY.isParentIp(parentIpId, childIpId));
+        assertTrue(LICENSE_REGISTRY.isDerivativeIp(childIpId));
+        assertEq(LICENSE_REGISTRY.getDerivativeIpCount(parentIpId), 1);
+        assertEq(LICENSE_REGISTRY.getParentIpCount(childIpId), 1);
+        assertEq(LICENSE_REGISTRY.getParentIp({ childIpId: childIpId, index: 0 }), parentIpId);
+        assertEq(LICENSE_REGISTRY.getDerivativeIp({ parentIpId: parentIpId, index: 0 }), childIpId);
     }
 }

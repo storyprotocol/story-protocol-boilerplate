@@ -69,4 +69,52 @@ contract Example {
         // transfer the NFT to the receiver so it owns the IPA
         SIMPLE_NFT.transferFrom(address(this), receiver, tokenId);
     }
+
+    /// @notice Mint and register a new child IPA, mint a License Token
+    /// from the parent, and register it as a derivative of the parent.
+    /// @param parentIpId The ipId of the parent IPA.
+    /// @param licenseTermsId The ID of the license terms you will
+    /// mint a license token from.
+    /// @param receiver The address that will receive the NFT/IPA.
+    /// @return childIpId The address of the child IPA.
+    /// @return childTokenId The token ID of the NFT representing ownership of the child IPA.
+    /// @return licenseTokenId The ID of the license token.
+    function mintLicenseTokenAndRegisterDerivative(
+        address parentIpId,
+        uint256 licenseTermsId,
+        address receiver
+    ) external returns (address childIpId, uint256 childTokenId, uint256 licenseTokenId) {
+        // We mint to this contract so that it has permissions
+        // to register itself as a derivative of another
+        // IP Asset.
+        // We will later transfer it to the intended `receiver`
+        childTokenId = SIMPLE_NFT.mint(address(this));
+        childIpId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), childTokenId);
+
+        // mint a license token from the parent
+        licenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+            licensorIpId: parentIpId,
+            licenseTemplate: address(PIL_TEMPLATE),
+            licenseTermsId: licenseTermsId,
+            amount: 1,
+            // mint the license token to this contract so it can
+            // use it to register as a derivative of the parent
+            receiver: address(this),
+            royaltyContext: "" // for PIL, royaltyContext is empty string
+        });
+
+        uint256[] memory licenseTokenIds = new uint256[](1);
+        licenseTokenIds[0] = licenseTokenId;
+
+        // register the new child IPA as a derivative
+        // of the parent
+        LICENSING_MODULE.registerDerivativeWithLicenseTokens({
+            childIpId: childIpId,
+            licenseTokenIds: licenseTokenIds,
+            royaltyContext: "" // empty for PIL
+        });
+
+        // transfer the NFT to the receiver so it owns the child IPA
+        SIMPLE_NFT.transferFrom(address(this), receiver, childTokenId);
+    }
 }

@@ -5,10 +5,11 @@ import { Test } from "forge-std/Test.sol";
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
+
 import { SUSD } from "../src/mocks/SUSD.sol";
 
 // Run this test:
-// forge test --fork-url https://testnet.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
+// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
 contract LicenseTermsTest is Test {
     address internal alice = address(0xa11ce);
 

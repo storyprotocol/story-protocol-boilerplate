@@ -10,7 +10,7 @@ import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.so
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test:
-// forge test --fork-url https://testnet.storyrpc.io/ --match-path test/0_IPARegistrar.t.sol
+// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/0_IPARegistrar.t.sol
 contract IPARegistrarTest is Test {
     address internal alice = address(0xa11ce);
 

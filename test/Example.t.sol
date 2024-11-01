@@ -2,6 +2,8 @@
 pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
+// for testing purposes only
+import { MockIPGraph } from "@storyprotocol/test/mocks/MockIPGraph.sol";
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
 import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
 
@@ -9,7 +11,7 @@ import { Example } from "../src/Example.sol";
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test:
-// forge test --fork-url https://testnet.storyrpc.io/ --match-path test/Example.t.sol
+// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/Example.t.sol
 contract ExampleTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);
@@ -31,6 +33,11 @@ contract ExampleTest is Test {
     Example public EXAMPLE;
 
     function setUp() public {
+        // this is only for testing purposes
+        // due to our IPGraph precompile not being
+        // deployed on the fork
+        vm.etch(address(0x0101), address(new MockIPGraph()).code);
+
         EXAMPLE = new Example(ipAssetRegistry, licensingModule, pilTemplate, royaltyPolicyLAP, susd);
         SIMPLE_NFT = SimpleNFT(EXAMPLE.SIMPLE_NFT());
     }

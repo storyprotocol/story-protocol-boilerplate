@@ -5,20 +5,21 @@ import { Test } from "forge-std/Test.sol";
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
+
 import { SUSD } from "../src/mocks/SUSD.sol";
 
 // Run this test:
-// forge test --fork-url https://testnet.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
+// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
 contract LicenseTermsTest is Test {
     address internal alice = address(0xa11ce);
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - PILicenseTemplate
-    PILicenseTemplate public immutable PIL_TEMPLATE = PILicenseTemplate(0xbB7ACFBE330C56aA9a3aEb84870743C3566992c3);
+    PILicenseTemplate public immutable PIL_TEMPLATE = PILicenseTemplate(0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93);
     // Protocol Core - RoyaltyPolicyLAP
-    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x793Df8d32c12B0bE9985FFF6afB8893d347B6686);
+    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6);
     // Mock - SUSD
-    SUSD public immutable SUSD_TOKEN = SUSD(0x91f6F05B08c16769d3c85867548615d270C42fC7);
+    SUSD public immutable SUSD_TOKEN = SUSD(0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5);
 
     function setUp() public {}
 

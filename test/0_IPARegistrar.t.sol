@@ -10,16 +10,16 @@ import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.so
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test:
-// forge test --fork-url https://testnet.storyrpc.io/ --match-path test/0_IPARegistrar.t.sol
+// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/0_IPARegistrar.t.sol
 contract IPARegistrarTest is Test {
     address internal alice = address(0xa11ce);
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    IPAssetRegistry public immutable IP_ASSET_REGISTRY = IPAssetRegistry(0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40);
+    IPAssetRegistry public immutable IP_ASSET_REGISTRY = IPAssetRegistry(0x28E59E91C0467e89fd0f0438D47Ca839cDfEc095);
     // Protocol Periphery - RegistrationWorkflows
     RegistrationWorkflows public immutable REGISTRATION_WORKFLOWS =
-        RegistrationWorkflows(0xF403fcCAAE6C503D0CC1D25904A0B2cCd5B96C6F);
+        RegistrationWorkflows(0xde13Be395E1cd753471447Cf6A656979ef87881c);
 
     SimpleNFT public SIMPLE_NFT;
     ISPGNFT public SPG_NFT;

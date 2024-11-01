@@ -8,7 +8,7 @@ import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicen
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
-import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
+import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
 
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 import { SUSD } from "../src/mocks/SUSD.sol";
@@ -20,17 +20,17 @@ contract AttachTermsTest is Test {
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    IPAssetRegistry public immutable IP_ASSET_REGISTRY = IPAssetRegistry(0x14CAB45705Fe73EC6d126518E59Fe3C61a181E40);
+    IPAssetRegistry public immutable IP_ASSET_REGISTRY = IPAssetRegistry(0x28E59E91C0467e89fd0f0438D47Ca839cDfEc095);
     // Protocol Core - LicenseRegistry
-    LicenseRegistry public immutable LICENSE_REGISTRY = LicenseRegistry(0x4D71a082DE74B40904c1d89d9C3bfB7079d4c542);
+    LicenseRegistry public immutable LICENSE_REGISTRY = LicenseRegistry(0xBda3992c49E98392e75E78d82B934F3598bA495f);
     // Protocol Core - LicensingModule
-    ILicensingModule public immutable LICENSING_MODULE = ILicensingModule(0xC8f165950411504eA130692B87A7148e469f7090);
+    LicensingModule public immutable LICENSING_MODULE = LicensingModule(0x5a7D9Fa17DE09350F481A53B470D798c1c1aabae);
     // Protocol Core - PILicenseTemplate
-    PILicenseTemplate public immutable PIL_TEMPLATE = PILicenseTemplate(0xbB7ACFBE330C56aA9a3aEb84870743C3566992c3);
+    PILicenseTemplate public immutable PIL_TEMPLATE = PILicenseTemplate(0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93);
     // Protocol Core - RoyaltyPolicyLAP
-    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x793Df8d32c12B0bE9985FFF6afB8893d347B6686);
+    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6);
     // Mock - SUSD
-    SUSD public immutable SUSD_TOKEN = SUSD(0x91f6F05B08c16769d3c85867548615d270C42fC7);
+    SUSD public immutable SUSD_TOKEN = SUSD(0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5);
 
     SimpleNFT public SIMPLE_NFT;
     uint256 public tokenId;
@@ -42,7 +42,7 @@ contract AttachTermsTest is Test {
         tokenId = SIMPLE_NFT.mint(alice);
         ipId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), tokenId);
 
-        // Register random Commercial Remixterms so we can attach them later
+        // Register random Commercial Remix terms so we can attach them later
         licenseTermsId = PIL_TEMPLATE.registerLicenseTerms(
             PILFlavors.commercialRemix({
                 mintingFee: 0,

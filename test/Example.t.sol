@@ -76,8 +76,11 @@ contract ExampleTest is Test {
         (address parentIpId, uint256 parentTokenId, uint256 licenseTermsId) = EXAMPLE
             .mintAndRegisterAndCreateTermsAndAttach(alice);
 
-        (address childIpId, uint256 childTokenId, uint256 licenseTokenId) = EXAMPLE
-            .mintLicenseTokenAndRegisterDerivative(parentIpId, licenseTermsId, bob);
+        (address childIpId, uint256 childTokenId) = EXAMPLE.mintLicenseTokenAndRegisterDerivative(
+            parentIpId,
+            licenseTermsId,
+            bob
+        );
 
         assertTrue(LICENSE_REGISTRY.hasDerivativeIps(parentIpId));
         assertTrue(LICENSE_REGISTRY.isParentIp(parentIpId, childIpId));

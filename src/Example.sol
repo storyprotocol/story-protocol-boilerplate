@@ -78,12 +78,11 @@ contract Example {
     /// @param receiver The address that will receive the NFT/IPA.
     /// @return childIpId The address of the child IPA.
     /// @return childTokenId The token ID of the NFT representing ownership of the child IPA.
-    /// @return licenseTokenId The ID of the license token.
     function mintLicenseTokenAndRegisterDerivative(
         address parentIpId,
         uint256 licenseTermsId,
         address receiver
-    ) external returns (address childIpId, uint256 childTokenId, uint256 licenseTokenId) {
+    ) external returns (address childIpId, uint256 childTokenId) {
         // We mint to this contract so that it has permissions
         // to register itself as a derivative of another
         // IP Asset.
@@ -92,7 +91,7 @@ contract Example {
         childIpId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), childTokenId);
 
         // mint a license token from the parent
-        licenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+        uint256 licenseTokenId = LICENSING_MODULE.mintLicenseTokens({
             licensorIpId: parentIpId,
             licenseTemplate: address(PIL_TEMPLATE),
             licenseTermsId: licenseTermsId,

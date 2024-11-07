@@ -16,7 +16,7 @@ import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 import { SUSD } from "../src/mocks/SUSD.sol";
 
 // Run this test:
-// forge test --fork-url https://odyssey.storyrpc.io/ --match-path test/2_AttachTerms.t.sol
+// forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/2_AttachTerms.t.sol
 contract AttachTermsTest is Test {
     address internal alice = address(0xa11ce);
 

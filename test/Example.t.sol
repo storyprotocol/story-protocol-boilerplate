@@ -49,7 +49,7 @@ contract ExampleTest is Test {
         uint256 expectedTokenId = SIMPLE_NFT.nextTokenId();
         address expectedIpId = IP_ASSET_REGISTRY.ipId(block.chainid, address(SIMPLE_NFT), expectedTokenId);
 
-        (address ipId, uint256 tokenId, uint256 licenseTermsId) = EXAMPLE.mintAndRegisterAndCreateTermsAndAttach(alice);
+        (uint256 tokenId, address ipId, uint256 licenseTermsId) = EXAMPLE.mintAndRegisterAndCreateTermsAndAttach(alice);
 
         assertEq(tokenId, expectedTokenId);
         assertEq(ipId, expectedIpId);
@@ -73,10 +73,10 @@ contract ExampleTest is Test {
         LicenseRegistry LICENSE_REGISTRY = LicenseRegistry(licenseRegistry);
         IPAssetRegistry IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
 
-        (address parentIpId, uint256 parentTokenId, uint256 licenseTermsId) = EXAMPLE
+        (uint256 parentTokenId, address parentIpId, uint256 licenseTermsId) = EXAMPLE
             .mintAndRegisterAndCreateTermsAndAttach(alice);
 
-        (address childIpId, uint256 childTokenId) = EXAMPLE.mintLicenseTokenAndRegisterDerivative(
+        (uint256 childTokenId, address childIpId) = EXAMPLE.mintLicenseTokenAndRegisterDerivative(
             parentIpId,
             licenseTermsId,
             bob

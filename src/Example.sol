@@ -41,12 +41,12 @@ contract Example {
 
     /// @notice Mint an NFT, register it as an IP Asset, and attach License Terms to it.
     /// @param receiver The address that will receive the NFT/IPA.
-    /// @return ipId The address of the IP Account.
     /// @return tokenId The token ID of the NFT representing ownership of the IPA.
+    /// @return ipId The address of the IP Account.
     /// @return licenseTermsId The ID of the license terms.
     function mintAndRegisterAndCreateTermsAndAttach(
         address receiver
-    ) external returns (address ipId, uint256 tokenId, uint256 licenseTermsId) {
+    ) external returns (uint256 tokenId, address ipId, uint256 licenseTermsId) {
         // We mint to this contract so that it has permissions
         // to attach license terms to the IP Asset.
         // We will later transfer it to the intended `receiver`
@@ -76,13 +76,13 @@ contract Example {
     /// @param licenseTermsId The ID of the license terms you will
     /// mint a license token from.
     /// @param receiver The address that will receive the NFT/IPA.
-    /// @return childIpId The address of the child IPA.
     /// @return childTokenId The token ID of the NFT representing ownership of the child IPA.
+    /// @return childIpId The address of the child IPA.
     function mintLicenseTokenAndRegisterDerivative(
         address parentIpId,
         uint256 licenseTermsId,
         address receiver
-    ) external returns (address childIpId, uint256 childTokenId) {
+    ) external returns (uint256 childTokenId, address childIpId) {
         // We mint to this contract so that it has permissions
         // to register itself as a derivative of another
         // IP Asset.

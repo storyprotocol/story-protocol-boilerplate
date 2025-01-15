@@ -1,9 +1,9 @@
 ## Description
 <!-- Add a description of the changes that this PR introduces -->
 Example:
-This pr adds user login function, includes：
+This pr adds a user login function, which includes：
 
-- 1. add user login page.
+- 1. add a user login page.
 - 2. ...
 
 ## Test Plan 
@@ -14,7 +14,7 @@ Example:
 - 2. ...
 
 ## Related Issue
-<!-- The related Issue section can indicate which issue or task the Pull Request is related with -->
+<!-- The related Issue section can indicate which issue or task the Pull Request is related to -->
 
 Example: Issue #123
 

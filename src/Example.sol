@@ -2,8 +2,6 @@
 pragma solidity ^0.8.26;
 
 import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { RegistrationWorkflows } from "@storyprotocol/periphery/workflows/RegistrationWorkflows.sol";
-import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.sol";
 import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
 import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";

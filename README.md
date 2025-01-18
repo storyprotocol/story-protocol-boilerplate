@@ -14,4 +14,4 @@ Find the full smart contract guide here: https://docs.story.foundation/docs/get-
 
     2a. Run all the tests: `forge test --fork-url https://rpc.odyssey.storyrpc.io/`
 
-    2b. Run a specific test: `forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/LicenseTerms.t.sol`
+    2b. Run a specific test: `forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol`

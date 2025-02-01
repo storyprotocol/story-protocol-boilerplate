@@ -19,7 +19,7 @@ import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test:
-// forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/5_Royalty.t.sol
+// forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/5_Royalty.t.sol
 contract RoyaltyTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);

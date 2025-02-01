@@ -9,7 +9,7 @@ import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/L
 import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 
 // Run this test:
-// forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
+// forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
 contract LicenseTermsTest is Test {
     address internal alice = address(0xa11ce);
 

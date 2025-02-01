@@ -5,8 +5,8 @@ import { Test } from "forge-std/Test.sol";
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
-
-import { SUSD } from "../src/mocks/SUSD.sol";
+import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
+import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 
 // Run this test:
 // forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/1_LicenseTerms.t.sol
@@ -15,11 +15,11 @@ contract LicenseTermsTest is Test {
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - PILicenseTemplate
-    PILicenseTemplate public immutable PIL_TEMPLATE = PILicenseTemplate(0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93);
+    PILicenseTemplate internal PIL_TEMPLATE = PILicenseTemplate(0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316);
     // Protocol Core - RoyaltyPolicyLAP
-    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6);
+    RoyaltyPolicyLAP internal ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E);
     // Mock - SUSD
-    SUSD public immutable SUSD_TOKEN = SUSD(0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5);
+    MockERC20 internal MERC20 = MockERC20(0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E);
 
     function setUp() public {}
 
@@ -41,7 +41,7 @@ contract LicenseTermsTest is Test {
             derivativesApproval: true,
             derivativesReciprocal: true,
             derivativeRevCeiling: 0,
-            currency: address(SUSD_TOKEN),
+            currency: address(MERC20),
             uri: ""
         });
         uint256 licenseTermsId = PIL_TEMPLATE.registerLicenseTerms(pilTerms);

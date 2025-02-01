@@ -7,18 +7,20 @@ import { LicensingModule } from "@storyprotocol/core/modules/licensing/Licensing
 import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
+import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 
-import { SUSD } from "./mocks/SUSD.sol";
 import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
+import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+
 /// @notice Register an NFT as an IP Account.
-contract Example {
+contract Example is ERC721Holder {
     IPAssetRegistry public immutable IP_ASSET_REGISTRY;
     LicenseRegistry public immutable LICENSE_REGISTRY;
     LicensingModule public immutable LICENSING_MODULE;
     PILicenseTemplate public immutable PIL_TEMPLATE;
     RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP;
-    SUSD public immutable SUSD_TOKEN;
+    MockERC20 public immutable MERC20;
     SimpleNFT public immutable SIMPLE_NFT;
 
     constructor(
@@ -26,13 +28,13 @@ contract Example {
         address licensingModule,
         address pilTemplate,
         address royaltyPolicyLAP,
-        address susdToken
+        address merc20
     ) {
         IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
         LICENSING_MODULE = LicensingModule(licensingModule);
         PIL_TEMPLATE = PILicenseTemplate(pilTemplate);
         ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(royaltyPolicyLAP);
-        SUSD_TOKEN = SUSD(susdToken);
+        MERC20 = MockERC20(merc20);
         // Create a new Simple NFT collection
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
     }
@@ -57,7 +59,7 @@ contract Example {
                 mintingFee: 0,
                 commercialRevShare: 10 * 10 ** 6, // 10%
                 royaltyPolicy: address(ROYALTY_POLICY_LAP),
-                currencyToken: address(SUSD_TOKEN)
+                currencyToken: address(MERC20)
             })
         );
 
@@ -97,7 +99,9 @@ contract Example {
             // mint the license token to this contract so it can
             // use it to register as a derivative of the parent
             receiver: address(this),
-            royaltyContext: "" // for PIL, royaltyContext is empty string
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
         });
 
         uint256[] memory licenseTokenIds = new uint256[](1);
@@ -108,7 +112,8 @@ contract Example {
         LICENSING_MODULE.registerDerivativeWithLicenseTokens({
             childIpId: childIpId,
             licenseTokenIds: licenseTokenIds,
-            royaltyContext: "" // empty for PIL
+            royaltyContext: "", // empty for PIL
+            maxRts: 0
         });
 
         // transfer the NFT to the receiver so it owns the child IPA

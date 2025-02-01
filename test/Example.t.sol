@@ -17,17 +17,17 @@ contract ExampleTest is Test {
     address internal bob = address(0xb0b);
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistry = 0x28E59E91C0467e89fd0f0438D47Ca839cDfEc095;
+    address internal ipAssetRegistry = 0x77319B4031e6eF1250907aa00018B8B1c67a244b;
     // Protocol Core - LicenseRegistry
-    address internal licenseRegistry = 0xBda3992c49E98392e75E78d82B934F3598bA495f;
+    address internal licenseRegistry = 0x529a750E02d8E2f15649c13D69a465286a780e24;
     // Protocol Core - LicensingModule
-    address internal licensingModule = 0x5a7D9Fa17DE09350F481A53B470D798c1c1aabae;
+    address internal licensingModule = 0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f;
     // Protocol Core - PILicenseTemplate
-    address internal pilTemplate = 0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93;
+    address internal pilTemplate = 0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316;
     // Protocol Core - RoyaltyPolicyLAP
-    address internal royaltyPolicyLAP = 0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6;
-    // Mock - SUSD
-    address internal susd = 0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5;
+    address internal royaltyPolicyLAP = 0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E;
+    // Mock - MERC20
+    address internal merc20 = 0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E;
 
     SimpleNFT public SIMPLE_NFT;
     Example public EXAMPLE;
@@ -38,7 +38,7 @@ contract ExampleTest is Test {
         // deployed on the fork
         vm.etch(address(0x0101), address(new MockIPGraph()).code);
 
-        EXAMPLE = new Example(ipAssetRegistry, licensingModule, pilTemplate, royaltyPolicyLAP, susd);
+        EXAMPLE = new Example(ipAssetRegistry, licensingModule, pilTemplate, royaltyPolicyLAP, merc20);
         SIMPLE_NFT = SimpleNFT(EXAMPLE.SIMPLE_NFT());
     }
 
@@ -56,11 +56,7 @@ contract ExampleTest is Test {
         assertEq(SIMPLE_NFT.ownerOf(tokenId), alice);
 
         assertTrue(LICENSE_REGISTRY.hasIpAttachedLicenseTerms(ipId, pilTemplate, licenseTermsId));
-        // We expect 2 because the IPA has the default license terms (licenseTermsId = 1)
-        // and the one we attached.
-        assertEq(LICENSE_REGISTRY.getAttachedLicenseTermsCount(ipId), 2);
-        // Although an IP Asset has default license terms, index 0 is
-        // still the one we attached.
+        assertEq(LICENSE_REGISTRY.getAttachedLicenseTermsCount(ipId), 1);
         (address licenseTemplate, uint256 attachedLicenseTermsId) = LICENSE_REGISTRY.getAttachedLicenseTerms({
             ipId: ipId,
             index: 0

@@ -7,5 +7,5 @@ optimizer = true
 optimizer_runs = 20000
 test = 'test'
 solc = '0.8.26'
-fs_permissions = [{ access = 'read', path = './' }, { access = 'read-write', path = './deploy-out' }]
+fs_permissions = [{ access = 'read', path = './out' }, { access = 'read-write', path = './deploy-out' }]
 evm_version = 'cancun'

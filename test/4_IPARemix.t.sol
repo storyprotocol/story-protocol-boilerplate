@@ -4,39 +4,34 @@ pragma solidity ^0.8.26;
 import { Test } from "forge-std/Test.sol";
 // for testing purposes only
 import { MockIPGraph } from "@storyprotocol/test/mocks/MockIPGraph.sol";
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
-import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
-import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
+import { IIPAssetRegistry } from "@storyprotocol/core/interfaces/registries/IIPAssetRegistry.sol";
+import { ILicenseRegistry } from "@storyprotocol/core/interfaces/registries/ILicenseRegistry.sol";
+import { IPILicenseTemplate } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
+import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
-import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
-import { LicenseToken } from "@storyprotocol/core/LicenseToken.sol";
 
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
-import { SUSD } from "../src/mocks/SUSD.sol";
 
 // Run this test:
-// forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/4_IPARemix.t.sol
+// forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/4_IPARemix.t.sol
 contract IPARemixTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    IPAssetRegistry internal IP_ASSET_REGISTRY = IPAssetRegistry(0x28E59E91C0467e89fd0f0438D47Ca839cDfEc095);
+    IIPAssetRegistry internal IP_ASSET_REGISTRY = IIPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
     // Protocol Core - LicenseRegistry
-    LicenseRegistry internal LICENSE_REGISTRY = LicenseRegistry(0xBda3992c49E98392e75E78d82B934F3598bA495f);
+    ILicenseRegistry internal LICENSE_REGISTRY = ILicenseRegistry(0x529a750E02d8E2f15649c13D69a465286a780e24);
     // Protocol Core - LicensingModule
-    ILicensingModule internal LICENSING_MODULE = ILicensingModule(0x5a7D9Fa17DE09350F481A53B470D798c1c1aabae);
+    ILicensingModule internal LICENSING_MODULE = ILicensingModule(0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f);
     // Protocol Core - PILicenseTemplate
-    PILicenseTemplate internal PIL_TEMPLATE = PILicenseTemplate(0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93);
+    IPILicenseTemplate internal PIL_TEMPLATE = IPILicenseTemplate(0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316);
     // Protocol Core - RoyaltyPolicyLAP
-    RoyaltyPolicyLAP internal ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6);
-    // Protocol Core - LicenseToken
-    LicenseToken internal LICENSE_TOKEN = LicenseToken(0xB138aEd64814F2845554f9DBB116491a077eEB2D);
-    // Mock - SUSD
-    SUSD internal SUSD_TOKEN = SUSD(0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5);
+    address internal ROYALTY_POLICY_LAP = 0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E;
+    // Revenue Token - MERC20
+    address internal MERC20 = 0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E;
 
     SimpleNFT public SIMPLE_NFT;
     uint256 public tokenId;
@@ -58,8 +53,8 @@ contract IPARemixTest is Test {
             PILFlavors.commercialRemix({
                 mintingFee: 0,
                 commercialRevShare: 10 * 10 ** 6, // 10%
-                royaltyPolicy: address(ROYALTY_POLICY_LAP),
-                currencyToken: address(SUSD_TOKEN)
+                royaltyPolicy: ROYALTY_POLICY_LAP,
+                currencyToken: MERC20
             })
         );
 
@@ -71,7 +66,9 @@ contract IPARemixTest is Test {
             licenseTermsId: licenseTermsId,
             amount: 2,
             receiver: bob,
-            royaltyContext: "" // for PIL, royaltyContext is empty string
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
         });
     }
 
@@ -93,14 +90,15 @@ contract IPARemixTest is Test {
         LICENSING_MODULE.registerDerivativeWithLicenseTokens({
             childIpId: childIpId,
             licenseTokenIds: licenseTokenIds,
-            royaltyContext: "" // empty for PIL
+            royaltyContext: "", // empty for PIL
+            maxRts: 0
         });
 
         assertTrue(LICENSE_REGISTRY.hasDerivativeIps(ipId));
         assertTrue(LICENSE_REGISTRY.isParentIp(ipId, childIpId));
         assertTrue(LICENSE_REGISTRY.isDerivativeIp(childIpId));
-        assertEq(LICENSE_REGISTRY.getDerivativeIpCount(ipId), 1);
         assertEq(LICENSE_REGISTRY.getParentIpCount(childIpId), 1);
+        assertEq(LICENSE_REGISTRY.getDerivativeIpCount(ipId), 1);
         assertEq(LICENSE_REGISTRY.getParentIp({ childIpId: childIpId, index: 0 }), ipId);
         assertEq(LICENSE_REGISTRY.getDerivativeIp({ parentIpId: ipId, index: 0 }), childIpId);
     }

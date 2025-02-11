@@ -5,3 +5,4 @@ erc6551/=node_modules/erc6551/
 forge-std/=node_modules/forge-std/src/
 ds-test/=node_modules/ds-test/src/
 @storyprotocol/test/=node_modules/@story-protocol/protocol-core/test/foundry/
+@solady/=node_modules/solady/

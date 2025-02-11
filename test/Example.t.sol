@@ -4,30 +4,31 @@ pragma solidity ^0.8.26;
 import { Test } from "forge-std/Test.sol";
 // for testing purposes only
 import { MockIPGraph } from "@storyprotocol/test/mocks/MockIPGraph.sol";
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
+import { IIPAssetRegistry } from "@storyprotocol/core/interfaces/registries/IIPAssetRegistry.sol";
+import { ILicenseRegistry } from "@storyprotocol/core/interfaces/registries/ILicenseRegistry.sol";
 
 import { Example } from "../src/Example.sol";
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 
 // Run this test:
-// forge test --fork-url https://rpc.odyssey.storyrpc.io/ --match-path test/Example.t.sol
+// forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/Example.t.sol
 contract ExampleTest is Test {
     address internal alice = address(0xa11ce);
     address internal bob = address(0xb0b);
+
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    address internal ipAssetRegistry = 0x28E59E91C0467e89fd0f0438D47Ca839cDfEc095;
+    address internal ipAssetRegistry = 0x77319B4031e6eF1250907aa00018B8B1c67a244b;
     // Protocol Core - LicenseRegistry
-    address internal licenseRegistry = 0xBda3992c49E98392e75E78d82B934F3598bA495f;
+    address internal licenseRegistry = 0x529a750E02d8E2f15649c13D69a465286a780e24;
     // Protocol Core - LicensingModule
-    address internal licensingModule = 0x5a7D9Fa17DE09350F481A53B470D798c1c1aabae;
+    address internal licensingModule = 0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f;
     // Protocol Core - PILicenseTemplate
-    address internal pilTemplate = 0x58E2c909D557Cd23EF90D14f8fd21667A5Ae7a93;
+    address internal pilTemplate = 0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316;
     // Protocol Core - RoyaltyPolicyLAP
-    address internal royaltyPolicyLAP = 0x28b4F70ffE5ba7A26aEF979226f77Eb57fb9Fdb6;
-    // Mock - SUSD
-    address internal susd = 0xC0F6E387aC0B324Ec18EAcf22EE7271207dCE3d5;
+    address internal royaltyPolicyLAP = 0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E;
+    // Revenue Token - WIP
+    address internal wip = 0x1514000000000000000000000000000000000000;
 
     SimpleNFT public SIMPLE_NFT;
     Example public EXAMPLE;
@@ -38,13 +39,13 @@ contract ExampleTest is Test {
         // deployed on the fork
         vm.etch(address(0x0101), address(new MockIPGraph()).code);
 
-        EXAMPLE = new Example(ipAssetRegistry, licensingModule, pilTemplate, royaltyPolicyLAP, susd);
+        EXAMPLE = new Example(ipAssetRegistry, licensingModule, pilTemplate, royaltyPolicyLAP, wip);
         SIMPLE_NFT = SimpleNFT(EXAMPLE.SIMPLE_NFT());
     }
 
     function test_mintAndRegisterAndCreateTermsAndAttach() public {
-        LicenseRegistry LICENSE_REGISTRY = LicenseRegistry(licenseRegistry);
-        IPAssetRegistry IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
+        ILicenseRegistry LICENSE_REGISTRY = ILicenseRegistry(licenseRegistry);
+        IIPAssetRegistry IP_ASSET_REGISTRY = IIPAssetRegistry(ipAssetRegistry);
 
         uint256 expectedTokenId = SIMPLE_NFT.nextTokenId();
         address expectedIpId = IP_ASSET_REGISTRY.ipId(block.chainid, address(SIMPLE_NFT), expectedTokenId);
@@ -56,11 +57,7 @@ contract ExampleTest is Test {
         assertEq(SIMPLE_NFT.ownerOf(tokenId), alice);
 
         assertTrue(LICENSE_REGISTRY.hasIpAttachedLicenseTerms(ipId, pilTemplate, licenseTermsId));
-        // We expect 2 because the IPA has the default license terms (licenseTermsId = 1)
-        // and the one we attached.
-        assertEq(LICENSE_REGISTRY.getAttachedLicenseTermsCount(ipId), 2);
-        // Although an IP Asset has default license terms, index 0 is
-        // still the one we attached.
+        assertEq(LICENSE_REGISTRY.getAttachedLicenseTermsCount(ipId), 1);
         (address licenseTemplate, uint256 attachedLicenseTermsId) = LICENSE_REGISTRY.getAttachedLicenseTerms({
             ipId: ipId,
             index: 0
@@ -70,8 +67,8 @@ contract ExampleTest is Test {
     }
 
     function test_mintLicenseTokenAndRegisterDerivative() public {
-        LicenseRegistry LICENSE_REGISTRY = LicenseRegistry(licenseRegistry);
-        IPAssetRegistry IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
+        ILicenseRegistry LICENSE_REGISTRY = ILicenseRegistry(licenseRegistry);
+        IIPAssetRegistry IP_ASSET_REGISTRY = IIPAssetRegistry(ipAssetRegistry);
 
         (uint256 parentTokenId, address parentIpId, uint256 licenseTermsId) = EXAMPLE
             .mintAndRegisterAndCreateTermsAndAttach(alice);

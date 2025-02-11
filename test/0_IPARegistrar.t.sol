@@ -2,9 +2,9 @@
 pragma solidity ^0.8.26;
 
 import { Test } from "forge-std/Test.sol";
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
+import { IIPAssetRegistry } from "@storyprotocol/core/interfaces/registries/IIPAssetRegistry.sol";
 import { ISPGNFT } from "@storyprotocol/periphery/interfaces/ISPGNFT.sol";
-import { RegistrationWorkflows } from "@storyprotocol/periphery/workflows/RegistrationWorkflows.sol";
+import { IRegistrationWorkflows } from "@storyprotocol/periphery/interfaces/workflows/IRegistrationWorkflows.sol";
 import { WorkflowStructs } from "@storyprotocol/periphery/lib/WorkflowStructs.sol";
 
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
@@ -16,10 +16,10 @@ contract IPARegistrarTest is Test {
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    IPAssetRegistry internal IP_ASSET_REGISTRY = IPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
+    IIPAssetRegistry internal IP_ASSET_REGISTRY = IIPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
     // Protocol Periphery - RegistrationWorkflows
-    RegistrationWorkflows internal REGISTRATION_WORKFLOWS =
-        RegistrationWorkflows(0xbe39E1C756e921BD25DF86e7AAa31106d1eb0424);
+    IRegistrationWorkflows internal REGISTRATION_WORKFLOWS =
+        IRegistrationWorkflows(0xbe39E1C756e921BD25DF86e7AAa31106d1eb0424);
 
     SimpleNFT public SIMPLE_NFT;
     ISPGNFT public SPG_NFT;

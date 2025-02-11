@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
-import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
-import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
-import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
+import { IIPAssetRegistry } from "@storyprotocol/core/interfaces/registries/IIPAssetRegistry.sol";
+import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
+import { IPILicenseTemplate } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
-import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 
 import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
@@ -15,12 +12,11 @@ import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721H
 
 /// @notice Register an NFT as an IP Account.
 contract Example is ERC721Holder {
-    IPAssetRegistry public immutable IP_ASSET_REGISTRY;
-    LicenseRegistry public immutable LICENSE_REGISTRY;
-    LicensingModule public immutable LICENSING_MODULE;
-    PILicenseTemplate public immutable PIL_TEMPLATE;
-    RoyaltyPolicyLAP public immutable ROYALTY_POLICY_LAP;
-    MockERC20 public immutable MERC20;
+    IIPAssetRegistry public immutable IP_ASSET_REGISTRY;
+    ILicensingModule public immutable LICENSING_MODULE;
+    IPILicenseTemplate public immutable PIL_TEMPLATE;
+    address public immutable ROYALTY_POLICY_LAP;
+    address public immutable WIP;
     SimpleNFT public immutable SIMPLE_NFT;
 
     constructor(
@@ -28,13 +24,13 @@ contract Example is ERC721Holder {
         address licensingModule,
         address pilTemplate,
         address royaltyPolicyLAP,
-        address merc20
+        address wip
     ) {
-        IP_ASSET_REGISTRY = IPAssetRegistry(ipAssetRegistry);
-        LICENSING_MODULE = LicensingModule(licensingModule);
-        PIL_TEMPLATE = PILicenseTemplate(pilTemplate);
-        ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(royaltyPolicyLAP);
-        MERC20 = MockERC20(merc20);
+        IP_ASSET_REGISTRY = IIPAssetRegistry(ipAssetRegistry);
+        LICENSING_MODULE = ILicensingModule(licensingModule);
+        PIL_TEMPLATE = IPILicenseTemplate(pilTemplate);
+        ROYALTY_POLICY_LAP = royaltyPolicyLAP;
+        WIP = wip;
         // Create a new Simple NFT collection
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
     }
@@ -58,8 +54,8 @@ contract Example is ERC721Holder {
             PILFlavors.commercialRemix({
                 mintingFee: 0,
                 commercialRevShare: 10 * 10 ** 6, // 10%
-                royaltyPolicy: address(ROYALTY_POLICY_LAP),
-                currencyToken: address(MERC20)
+                royaltyPolicy: ROYALTY_POLICY_LAP,
+                currencyToken: WIP
             })
         );
 

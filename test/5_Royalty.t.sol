@@ -4,16 +4,14 @@ pragma solidity ^0.8.26;
 import { Test } from "forge-std/Test.sol";
 // for testing purposes only
 import { MockIPGraph } from "@storyprotocol/test/mocks/MockIPGraph.sol";
-import { IPAssetRegistry } from "@storyprotocol/core/registries/IPAssetRegistry.sol";
-import { LicenseRegistry } from "@storyprotocol/core/registries/LicenseRegistry.sol";
-import { PILicenseTemplate } from "@storyprotocol/core/modules/licensing/PILicenseTemplate.sol";
+import { IIPAssetRegistry } from "@storyprotocol/core/interfaces/registries/IIPAssetRegistry.sol";
+import { IPILicenseTemplate } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
+import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
+import { IRoyaltyWorkflows } from "@storyprotocol/periphery/interfaces/workflows/IRoyaltyWorkflows.sol";
+import { IRoyaltyModule } from "@storyprotocol/core/interfaces/modules/royalty/IRoyaltyModule.sol";
 import { RoyaltyPolicyLAP } from "@storyprotocol/core/modules/royalty/policies/LAP/RoyaltyPolicyLAP.sol";
 import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
 import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
-import { LicensingModule } from "@storyprotocol/core/modules/licensing/LicensingModule.sol";
-import { LicenseToken } from "@storyprotocol/core/LicenseToken.sol";
-import { RoyaltyWorkflows } from "@storyprotocol/periphery/workflows/RoyaltyWorkflows.sol";
-import { RoyaltyModule } from "@storyprotocol/core/modules/royalty/RoyaltyModule.sol";
 import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
@@ -26,22 +24,18 @@ contract RoyaltyTest is Test {
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
     // Protocol Core - IPAssetRegistry
-    IPAssetRegistry internal IP_ASSET_REGISTRY = IPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
-    // Protocol Core - LicenseRegistry
-    LicenseRegistry internal LICENSE_REGISTRY = LicenseRegistry(0x529a750E02d8E2f15649c13D69a465286a780e24);
+    IIPAssetRegistry internal IP_ASSET_REGISTRY = IIPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
     // Protocol Core - LicensingModule
-    LicensingModule internal LICENSING_MODULE = LicensingModule(0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f);
+    ILicensingModule internal LICENSING_MODULE = ILicensingModule(0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f);
     // Protocol Core - PILicenseTemplate
-    PILicenseTemplate internal PIL_TEMPLATE = PILicenseTemplate(0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316);
+    IPILicenseTemplate internal PIL_TEMPLATE = IPILicenseTemplate(0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316);
     // Protocol Core - RoyaltyPolicyLAP
-    RoyaltyPolicyLAP internal ROYALTY_POLICY_LAP = RoyaltyPolicyLAP(0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E);
-    // Protocol Core - LicenseToken
-    LicenseToken internal LICENSE_TOKEN = LicenseToken(0xFe3838BFb30B34170F00030B52eA4893d8aAC6bC);
+    address internal ROYALTY_POLICY_LAP = 0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E;
     // Protocol Core - RoyaltyModule
-    RoyaltyModule internal ROYALTY_MODULE = RoyaltyModule(0xD2f60c40fEbccf6311f8B47c4f2Ec6b040400086);
+    IRoyaltyModule internal ROYALTY_MODULE = IRoyaltyModule(0xD2f60c40fEbccf6311f8B47c4f2Ec6b040400086);
     // Protocol Periphery - RoyaltyWorkflows
-    RoyaltyWorkflows internal ROYALTY_WORKFLOWS = RoyaltyWorkflows(0x9515faE61E0c0447C6AC6dEe5628A2097aFE1890);
-    // Mock - MERC20
+    IRoyaltyWorkflows internal ROYALTY_WORKFLOWS = IRoyaltyWorkflows(0x9515faE61E0c0447C6AC6dEe5628A2097aFE1890);
+    // Revenue Token - MERC20
     MockERC20 internal MERC20 = MockERC20(0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E);
 
     SimpleNFT public SIMPLE_NFT;
@@ -65,7 +59,7 @@ contract RoyaltyTest is Test {
             PILFlavors.commercialRemix({
                 mintingFee: 0,
                 commercialRevShare: 10 * 10 ** 6, // 10%
-                royaltyPolicy: address(ROYALTY_POLICY_LAP),
+                royaltyPolicy: ROYALTY_POLICY_LAP,
                 currencyToken: address(MERC20)
             })
         );
@@ -120,7 +114,7 @@ contract RoyaltyTest is Test {
         address[] memory royaltyPolicies = new address[](1);
         address[] memory currencyTokens = new address[](1);
         childIpIds[0] = childIpId;
-        royaltyPolicies[0] = address(ROYALTY_POLICY_LAP);
+        royaltyPolicies[0] = ROYALTY_POLICY_LAP;
         currencyTokens[0] = address(MERC20);
 
         uint256[] memory amountsClaimed = ROYALTY_WORKFLOWS.claimAllRevenue({

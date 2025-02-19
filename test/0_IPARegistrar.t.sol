@@ -80,7 +80,7 @@ contract IPARegistrarTest is Test {
                 ipMetadataURI: "https://ipfs.io/ipfs/QmZHfQdFA2cb3ASdmeGS5K6rZjz65osUddYMURDx21bT73",
                 ipMetadataHash: keccak256(
                     abi.encodePacked(
-                        "{'title':'My IP Asset','description':'This is a test IP asset','ipType':'','relationships':[],'createdAt':'','watermarkImg':'https://picsum.photos/200','creators':[],'media':[],'attributes':[{'key':'Rarity','value':'Legendary'}],'tags':[]}"
+                        "{'title':'My IP Asset','description':'This is a test IP asset','createdAt':'','creators':[]}"
                     )
                 ),
                 nftMetadataURI: "https://ipfs.io/ipfs/QmRL5PcK66J1mbtTZSw1nwVqrGxt98onStx6LgeHTDbEey",

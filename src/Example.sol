@@ -10,7 +10,8 @@ import { SimpleNFT } from "./mocks/SimpleNFT.sol";
 
 import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-/// @notice Register an NFT as an IP Account.
+/// @notice An example contract that demonstrates how to mint an NFT, register it as an IP Asset,
+/// attach license terms to it, mint a license token from it, and register it as a derivative of the parent.
 contract Example is ERC721Holder {
     IIPAssetRegistry public immutable IP_ASSET_REGISTRY;
     ILicensingModule public immutable LICENSING_MODULE;

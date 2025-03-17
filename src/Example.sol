@@ -54,7 +54,7 @@ contract Example is ERC721Holder {
         licenseTermsId = PIL_TEMPLATE.registerLicenseTerms(
             PILFlavors.commercialRemix({
                 mintingFee: 0,
-                commercialRevShare: 10 * 10 ** 6, // 10%
+                commercialRevShare: 20 * 10 ** 6, // 20%
                 royaltyPolicy: ROYALTY_POLICY_LAP,
                 currencyToken: WIP
             })

@@ -58,7 +58,7 @@ contract RoyaltyTest is Test {
         licenseTermsId = PIL_TEMPLATE.registerLicenseTerms(
             PILFlavors.commercialRemix({
                 mintingFee: 0,
-                commercialRevShare: 10 * 10 ** 6, // 10%
+                commercialRevShare: 20 * 10 ** 6, // 20%
                 royaltyPolicy: ROYALTY_POLICY_LAP,
                 currencyToken: address(MERC20)
             })
@@ -108,8 +108,8 @@ contract RoyaltyTest is Test {
         // This contract pays 10 MERC20 to Bob's IP.
         ROYALTY_MODULE.payRoyaltyOnBehalf(childIpId, address(0), address(MERC20), 10);
 
-        // Now that Bob's IP has been paid, Alice can claim her share (1 MERC20, which
-        // is 10% as specified in the license terms)
+        // Now that Bob's IP has been paid, Alice can claim her share (2 MERC20, which
+        // is 20% as specified in the license terms)
         address[] memory childIpIds = new address[](1);
         address[] memory royaltyPolicies = new address[](1);
         address[] memory currencyTokens = new address[](1);
@@ -125,12 +125,67 @@ contract RoyaltyTest is Test {
             currencyTokens: currencyTokens
         });
 
+        // Check that 2 MERC20 was claimed by Alice's IP Account
+        assertEq(amountsClaimed[0], 2);
+        // Check that Alice's IP Account now has 2 MERC20 in its balance.
+        assertEq(MERC20.balanceOf(ipId), 2);
+        // Check that Bob's IP now has 8 MERC20 in its Royalty Vault, which it
+        // can claim to its IP Account at a later point if he wants.
+        assertEq(MERC20.balanceOf(ROYALTY_MODULE.ipRoyaltyVaults(childIpId)), 8);
+    }
+
+    /// @notice Shows an example of paying a minting fee
+    function test_payMintingFee() public {
+        // ADMIN SETUP
+        // We mint 1 MERC20 to this contract so it has some money to pay.
+        MERC20.mint(address(this), 1);
+        // We approve the Royalty Module to spend MERC20 on our behalf, which
+        // it will do using `payRoyaltyOnBehalf`.
+        MERC20.approve(address(ROYALTY_MODULE), 1);
+
+        // Create commercial use terms with a mint fee to test
+        uint256 commercialUseLicenseTermsId = PIL_TEMPLATE.registerLicenseTerms(
+            PILFlavors.commercialUse({
+                mintingFee: 1, // 1 MERC20
+                royaltyPolicy: ROYALTY_POLICY_LAP,
+                currencyToken: address(MERC20)
+            })
+        );
+
+        // attach the terms to the ip asset
+        vm.prank(alice);
+        LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), commercialUseLicenseTermsId);
+
+        // pay the mint fee
+        startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+            licensorIpId: ipId,
+            licenseTemplate: address(PIL_TEMPLATE),
+            licenseTermsId: commercialUseLicenseTermsId,
+            amount: 1,
+            receiver: bob,
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
+        });
+
+        // Now that Bob's IP has been paid, Alice can claim her share (2 MERC20, which
+        // is 20% as specified in the license terms)
+        address[] memory childIpIds = new address[](0);
+        address[] memory royaltyPolicies = new address[](0);
+        address[] memory currencyTokens = new address[](1);
+        currencyTokens[0] = address(MERC20);
+
+        uint256[] memory amountsClaimed = ROYALTY_WORKFLOWS.claimAllRevenue({
+            ancestorIpId: ipId,
+            claimer: ipId,
+            childIpIds: childIpIds,
+            royaltyPolicies: royaltyPolicies,
+            currencyTokens: currencyTokens
+        });
+
         // Check that 1 MERC20 was claimed by Alice's IP Account
         assertEq(amountsClaimed[0], 1);
         // Check that Alice's IP Account now has 1 MERC20 in its balance.
         assertEq(MERC20.balanceOf(ipId), 1);
-        // Check that Bob's IP now has 9 MERC20 in its Royalty Vault, which it
-        // can claim to its IP Account at a later point if he wants.
-        assertEq(MERC20.balanceOf(ROYALTY_MODULE.ipRoyaltyVaults(childIpId)), 9);
     }
 }

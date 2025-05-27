@@ -31,7 +31,6 @@ interface IMulticall3 {
     function aggregate3(Call3[] calldata calls) external payable returns (Result[] memory returnData);
 }
 
-
 // Run this test:
 // forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/5_Royalty.t.sol
 contract RoyaltyTest is Test {
@@ -39,12 +38,19 @@ contract RoyaltyTest is Test {
     address internal bob = address(0xb0b);
 
     // For addresses, see https://docs.story.foundation/docs/deployed-smart-contracts
+    // Protocol Core - IPAssetRegistry
     IIPAssetRegistry internal IP_ASSET_REGISTRY = IIPAssetRegistry(0x77319B4031e6eF1250907aa00018B8B1c67a244b);
+    // Protocol Core - LicensingModule
     ILicensingModule internal LICENSING_MODULE = ILicensingModule(0x04fbd8a2e56dd85CFD5500A4A4DfA955B9f1dE6f);
+    // Protocol Core - PILicenseTemplate
     IPILicenseTemplate internal PIL_TEMPLATE = IPILicenseTemplate(0x2E896b0b2Fdb7457499B56AAaA4AE55BCB4Cd316);
+    // Protocol Core - RoyaltyPolicyLAP
     address internal ROYALTY_POLICY_LAP = 0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E;
+    // Protocol Core - RoyaltyModule
     IRoyaltyModule internal ROYALTY_MODULE = IRoyaltyModule(0xD2f60c40fEbccf6311f8B47c4f2Ec6b040400086);
+    // Protocol Periphery - RoyaltyWorkflows
     IRoyaltyWorkflows internal ROYALTY_WORKFLOWS = IRoyaltyWorkflows(0x9515faE61E0c0447C6AC6dEe5628A2097aFE1890);
+    // Revenue Token - MERC20
     MockERC20 internal MERC20 = MockERC20(0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E);
 
     address constant MULTICALL_ADDRESS = 0xcA11bde05977b3631167028862bE2a173976CA11;
@@ -58,7 +64,11 @@ contract RoyaltyTest is Test {
     address public childIpId;
 
     function setUp() public {
+        // this is only for testing purposes
+        // due to our IPGraph precompile not being
+        // deployed on the fork
         vm.etch(address(0x0101), address(new MockIPGraph()).code);
+
         SIMPLE_NFT = new SimpleNFT("Simple IP NFT", "SIM");
         tokenId = SIMPLE_NFT.mint(alice);
         ipId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), tokenId);
@@ -80,11 +90,12 @@ contract RoyaltyTest is Test {
             licenseTermsId: licenseTermsId,
             amount: 2,
             receiver: bob,
-            royaltyContext: "",
+            royaltyContext: "", // for PIL, royaltyContext is empty string
             maxMintingFee: 0,
             maxRevenueShare: 0
         });
 
+        // Registers a child IP (owned by Bob) as a derivative of Alice's IP.
         uint256 childTokenId = SIMPLE_NFT.mint(bob);
         childIpId = IP_ASSET_REGISTRY.register(block.chainid, address(SIMPLE_NFT), childTokenId);
 
@@ -95,7 +106,7 @@ contract RoyaltyTest is Test {
         LICENSING_MODULE.registerDerivativeWithLicenseTokens({
             childIpId: childIpId,
             licenseTokenIds: licenseTokenIds,
-            royaltyContext: "",
+            royaltyContext: "", // empty for PIL
             maxRts: 0
         });
     }
@@ -149,27 +160,30 @@ contract RoyaltyTest is Test {
         // console.log("Multicall executed successfully.");
         // console.log("MERC20 balance of Multicall contract after operations: ", MERC20.balanceOf(MULTICALL_ADDRESS));
 
-        // Now that Bob's IP has been paid (via Multicall3), Alice can claim her share.
-        // The rest of the logic is identical to the original version of this test.
-        address[] memory childIpIds_ = new address[](1);
-        address[] memory royaltyPolicies_ = new address[](1);
-        address[] memory currencyTokens_ = new address[](1);
-        childIpIds_[0] = childIpId;
-        royaltyPolicies_[0] = ROYALTY_POLICY_LAP;
-        currencyTokens_[0] = address(MERC20);
+        // Now that Bob's IP has been paid (via Multicall3), Alice can claim her share (2 MERC20, which
+        // is 20% as specified in the license terms)
+        address[] memory childIpIds = new address[](1);
+        address[] memory royaltyPolicies = new address[](1);
+        address[] memory currencyTokens = new address[](1);
+        childIpIds[0] = childIpId;
+        royaltyPolicies[0] = ROYALTY_POLICY_LAP;
+        currencyTokens[0] = address(MERC20);
 
         uint256[] memory amountsClaimed = ROYALTY_WORKFLOWS.claimAllRevenue({
             ancestorIpId: ipId,
             claimer: ipId,
-            childIpIds: childIpIds_,
-            royaltyPolicies: royaltyPolicies_,
-            currencyTokens: currencyTokens_
+            childIpIds: childIpIds,
+            royaltyPolicies: royaltyPolicies,
+            currencyTokens: currencyTokens
         });
 
-        // Assertions
-        assertEq(amountsClaimed[0], 2, "Alice's claimed amount mismatch");
-        assertEq(MERC20.balanceOf(ipId), 2, "Alice's IP balance mismatch");
-        assertEq(MERC20.balanceOf(ROYALTY_MODULE.ipRoyaltyVaults(childIpId)), 8, "Bob's vault balance mismatch");
+        // Check that 2 MERC20 was claimed by Alice's IP Account
+        assertEq(amountsClaimed[0], 2);
+        // Check that Alice's IP Account now has 2 MERC20 in its balance.
+        assertEq(MERC20.balanceOf(ipId), 2);
+        // Check that Bob's IP now has 8 MERC20 in its Royalty Vault, which it
+        // can claim to its IP Account at a later point if he wants.
+        assertEq(MERC20.balanceOf(ROYALTY_MODULE.ipRoyaltyVaults(childIpId)), 8);
         assertEq(MERC20.balanceOf(MULTICALL_ADDRESS), 0, "Multicall should have 0 MERC20 left");
     }
 
@@ -196,7 +210,7 @@ contract RoyaltyTest is Test {
         vm.prank(bob);
         MERC20.approve(address(ROYALTY_MODULE), 1);
 
-        // Bob pays the mint fee
+        // pay the mint fee
         vm.prank(bob); // Bob is the receiver of the license token
         LICENSING_MODULE.mintLicenseTokens({
             licensorIpId: ipId,
@@ -209,23 +223,24 @@ contract RoyaltyTest is Test {
             maxRevenueShare: 0
         });
 
-        // Now that the minting fee has been paid to Alice's IP, Alice can claim her share.
-        address[] memory childIpIds_ = new address[](0);
-        address[] memory royaltyPolicies_ = new address[](0);
-        address[] memory currencyTokens_ = new address[](1);
-        currencyTokens_[0] = address(MERC20);
+        // Now that the minting fee has been paid to Alice's IP, Alice can claim her share (1 MERC20, which
+        // is the full minting fee as specified in the license terms)
+        address[] memory childIpIds = new address[](0);
+        address[] memory royaltyPolicies = new address[](0);
+        address[] memory currencyTokens = new address[](1);
+        currencyTokens[0] = address(MERC20);
 
         uint256[] memory amountsClaimed = ROYALTY_WORKFLOWS.claimAllRevenue({
             ancestorIpId: ipId,
-            claimer: ipId, // Alice's IP is claiming
-            childIpIds: childIpIds_,
-            royaltyPolicies: royaltyPolicies_,
-            currencyTokens: currencyTokens_
+            claimer: ipId,
+            childIpIds: childIpIds,
+            royaltyPolicies: royaltyPolicies,
+            currencyTokens: currencyTokens
         });
 
         // Check that 1 MERC20 was claimed by Alice's IP Account
-        assertEq(amountsClaimed[0], 1, "Mint fee claimed amount mismatch");
+        assertEq(amountsClaimed[0], 1);
         // Check that Alice's IP Account now has 1 MERC20 in its balance.
-        assertEq(MERC20.balanceOf(ipId), 1, "Alice's IP balance after mint fee claim mismatch");
+        assertEq(MERC20.balanceOf(ipId), 1);
     }
 }

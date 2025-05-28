@@ -9,3 +9,4 @@ test = 'test'
 solc = '0.8.26'
 fs_permissions = [{ access = 'read', path = './out' }, { access = 'read-write', path = './deploy-out' }]
 evm_version = 'cancun'
+ffi = true

@@ -11,12 +11,11 @@ pragma solidity ^0.8.26;
  * INTEGRATION OVERVIEW:
  * ├── Source Chain (e.g., Ethereum): User initiates payment with ETH
  * ├── deBridge DLN: Swaps ETH → WIP and bridges to Story mainnet  
- * ├── Auto-Approval: ExternalCallExecutor approves WIP to RoyaltyModule
+ * ├── Auto-Approval: deBridge approves WIP to RoyaltyModule
  * └── Hook Execution: Direct call to RoyaltyModule.payRoyaltyOnBehalf()
  * 
  * KEY FEATURES:
- * • Simplified integration (no Multicall3 needed)
- * • Automatic token approval via ExternalCallExecutor
+ * • Automatic token approval via deBridge
  * • Direct contract calls for maximum efficiency
  * • Production-ready API integration
  * • Real Story Protocol mainnet addresses
@@ -27,6 +26,9 @@ pragma solidity ^0.8.26;
  * • Bridge: ETH → WIP token
  */
 
+
+// Run this test:
+// forge test --fork-url https://aeneid.storyrpc.io/ --match-path test/6_DebridgeHook.t.sol
 import { Test, console } from "forge-std/Test.sol";
 import { HexUtils } from "./utils/HexUtils.sol";
 import { StringUtils } from "./utils/StringUtils.sol";

@@ -156,6 +156,7 @@ contract DebridgeStoryIntegrationTest is Test {
             "&dstChainOrderAuthorityAddress=",
             _addressToHex(senderAddress),
             "&enableEstimate=true", // Enable simulation
+            "&prependOperatingExpenses=true",
             "&dlnHook=",
             _urlEncode(dlnHookJson) // URL-encoded hook
         );

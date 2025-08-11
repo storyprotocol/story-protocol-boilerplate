@@ -160,8 +160,11 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
         if (_licensePriceUSD == 0) revert PriceNotSet();
 
         // Get current IP/USD price from Pyth
-        // TODO: pyth.getPriceNoOlderThan() is always return error in testnet,
-        // so we use pyth.getPriceUnsafe() instead.
+        // TODO: Because pyth.getPriceNoOlderThan() always returns an error on testnet,
+        // we use pyth.getPriceUnsafe() instead.
+        // MAINNET:
+        // PythStructs.Price memory price = pythContract.getPriceNoOlderThan(priceFeedId, 60);
+        // TESTNET:
         PythStructs.Price memory price = pythContract.getPriceUnsafe(priceFeedId);
 
         // Get the IP token amount for the given USD price

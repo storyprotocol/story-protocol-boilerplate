@@ -87,7 +87,7 @@ contract IPUSDPriceHookTest is Test {
             isSet: true,
             mintingFee: 0,
             licensingHook: address(IPUSD_PRICE_HOOK),
-            hookData: "0x",
+            hookData: "",
             commercialRevShare: 0,
             disabled: false,
             expectMinimumGroupRewardShare: 0,

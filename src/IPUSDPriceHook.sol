@@ -16,7 +16,7 @@ import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 ///         The price is updated by the setLicensePrice function.
 contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
     string public constant override name = "IP_USD_PRICE_HOOK";
-    IPyth public immutable pythContract;
+    IPyth public immutable pyth;
     bytes32 public immutable priceFeedId;
 
     /// @notice Stores the base price in USD for each license terms ID.
@@ -44,11 +44,11 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
     constructor(
         address accessController,
         address ipAssetRegistry,
-        address _pythContract,
+        address _pyth,
         bytes32 _priceFeedId
     ) AccessControlled(accessController, ipAssetRegistry) {
         if (_priceFeedId == bytes32(0)) revert PriceFeedNotSet();
-        pythContract = IPyth(_pythContract);
+        pyth = IPyth(_pyth);
         priceFeedId = _priceFeedId;
     }
 
@@ -139,6 +139,13 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
         totalMintingFee = _calculateFee(licensorIpId, licenseTemplate, licenseTermsId, amount);
     }
 
+    /// @notice This function is used to update the IP price.
+    /// @param pythPriceUpdate The Pyth price update data.
+    function updateIpPrice(bytes[] calldata pythPriceUpdate) external payable {
+        uint256 fee = pyth.getUpdateFee(pythPriceUpdate);
+        pyth.updatePriceFeeds{ value: fee }(pythPriceUpdate);
+    }
+
     function supportsInterface(bytes4 interfaceId) public view virtual override(BaseModule, IERC165) returns (bool) {
         return interfaceId == type(ILicensingHook).interfaceId || super.supportsInterface(interfaceId);
     }
@@ -160,12 +167,7 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
         if (_licensePriceUSD == 0) revert PriceNotSet();
 
         // Get current IP/USD price from Pyth
-        // TODO: Because pyth.getPriceNoOlderThan() always returns an error on testnet,
-        // we use pyth.getPriceUnsafe() instead.
-        // MAINNET:
-        // PythStructs.Price memory price = pythContract.getPriceNoOlderThan(priceFeedId, 60);
-        // TESTNET:
-        PythStructs.Price memory price = pythContract.getPriceUnsafe(priceFeedId);
+        PythStructs.Price memory price = pyth.getPriceNoOlderThan(priceFeedId, 60);
 
         // Get the IP token amount for the given USD price
         uint256 ipTokenAmount = _getIPTokenAmountForUSD(_licensePriceUSD, price.price, price.expo);

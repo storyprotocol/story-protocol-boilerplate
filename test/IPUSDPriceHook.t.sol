@@ -110,7 +110,7 @@ contract IPUSDPriceHookTest is Test {
         vm.stopPrank();
 
         /// Royalty Module Setup
-        // We deposit 0.01 $MERC20 to the contract.
+        // We deposit 0.01 $MERC20 to the contract (in this tutorial, MERC20 is acting as IP). This is because in later tests we will be setting the IP (MERC20) price to $100 USD, so if the eventual license token minting price is 1 $USD, the contract will need 0.01 $MERC20 to buy.
         MERC20.mint(address(this), IP_TO_WEI / 100);
         // We approve the Royalty Module to spend MERC20 on our behalf, which
         // it will do using `payRoyaltyOnBehalf`.
@@ -147,7 +147,8 @@ contract IPUSDPriceHookTest is Test {
 
     /// @notice Mints license tokens for an IP Asset.
     /// We set the IP price to $100 USD. The license token
-    /// costs 1 $USD.
+    /// costs 1 $USD. And we minted 0.01 $MERC20 (acting as IP)
+    /// to the contract. So this should succeed.
     function test_mintLicenseToken() public {
         /// Pyth Oracle Price Setup
         setIpPrice(100); // sets IP to $100 USD
@@ -168,7 +169,10 @@ contract IPUSDPriceHookTest is Test {
     }
 
     /// @notice Mints license tokens for an IP Asset.
-    /// Anyone can mint a license token.
+    /// We set the IP price to $99 USD. The license token
+    /// costs 1 $USD. And we minted 0.01 $MERC20 (acting as IP)
+    /// to the contract. So this should FAIL, because you'd need
+    /// a little more MERC20 to buy the license.
     function test_mintLicenseTokenRevert() public {
         /// Pyth Oracle Price Setup
         setIpPrice(99); // sets IP to $99 USD
@@ -187,6 +191,11 @@ contract IPUSDPriceHookTest is Test {
         });
     }
 
+    /// @notice This test should fail, because
+    /// the price gets stale after 60 seconds (as
+    /// specified in the IPUSDPriceHook.sol).
+    /// Here we skip forward 120 seconds, which is past
+    /// the 60 second stale price threshold.
     function test_mintLicenseTokenStalePrice() public {
         setIpPrice(100);
 
@@ -205,13 +214,19 @@ contract IPUSDPriceHookTest is Test {
         });
     }
 
-    /// @notice Mints license tokens for an IP Asset.
-    /// Anyone can mint a license token.
+    /// @notice This test should succeed, because
+    /// we update the price before minting the license token.
+    /// This is what a real scenario would look like. The
+    /// above tests were "fake" because they mock set the price,
+    /// but this test calls the updateIpPrice function to update the price,
+    /// which is what would have to happen in a real scenario.
     function test_updateAndMintLicenseToken() public {
         bytes[] memory updateData = createIpUpdate(100);
 
-        vm.deal(address(this), IP_TO_WEI);
-        IPUSD_PRICE_HOOK.updateIpPrice{ value: IP_TO_WEI / 100 }(updateData);
+        /// It's 1 because that is the price of updating the mock Pyth price feed (as set above
+        /// when we initialize the MockPyth).
+        vm.deal(address(this), 1);
+        IPUSD_PRICE_HOOK.updateIpPrice{ value: 1 }(updateData);
 
         /// Mint License Token
         uint256 startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({

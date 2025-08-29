@@ -15,6 +15,7 @@ import { Licensing } from "@storyprotocol/core/lib/Licensing.sol";
 import { ModuleRegistry } from "@storyprotocol/core/registries/ModuleRegistry.sol";
 import { MockERC20 } from "@storyprotocol/test/mocks/token/MockERC20.sol";
 import { AccessController } from "@storyprotocol/core/access/AccessController.sol";
+import { MockPyth } from "@pythnetwork/pyth-sdk-solidity/MockPyth.sol";
 
 import { SimpleNFT } from "../src/mocks/SimpleNFT.sol";
 import { IPUSDPriceHook } from "../src/IPUSDPriceHook.sol";
@@ -44,13 +45,14 @@ contract IPUSDPriceHookTest is Test {
     address internal ROYALTY_MODULE = 0xD2f60c40fEbccf6311f8B47c4f2Ec6b040400086;
     // Revenue Token - MERC20
     MockERC20 internal MERC20 = MockERC20(0xF2104833d386a2734a4eB3B8ad6FC6812F29E38E);
-    // Pyth - IPyth
-    address internal PYTH = 0x36825bf3Fbdf5a29E2d5148bfe7Dcf7B5639e320;
     // Pyth - Price Feed ID
     bytes32 internal PRICE_FEED_ID = 0xb620ba83044577029da7e4ded7a2abccf8e6afc2a0d4d26d89ccdd39ec109025;
 
+    uint256 IP_TO_WEI = 1e18;
+
     IPUSDPriceHook public IPUSD_PRICE_HOOK;
     SimpleNFT public SIMPLE_NFT;
+    MockPyth public pyth;
     uint256 public tokenId;
     address public ipId;
     uint256 public licenseTermsId;
@@ -61,7 +63,13 @@ contract IPUSDPriceHookTest is Test {
         // deployed on the fork
         vm.etch(address(0x0101), address(new MockIPGraph()).code);
 
-        IPUSD_PRICE_HOOK = new IPUSDPriceHook(ACCESS_CONTROLLER, address(IP_ASSET_REGISTRY), PYTH, PRICE_FEED_ID);
+        pyth = new MockPyth(60, 1);
+        IPUSD_PRICE_HOOK = new IPUSDPriceHook(
+            ACCESS_CONTROLLER,
+            address(IP_ASSET_REGISTRY),
+            address(pyth),
+            PRICE_FEED_ID
+        );
 
         // Make the registry *think* the hook is registered everywhere in this test
         vm.mockCall(
@@ -97,18 +105,55 @@ contract IPUSDPriceHookTest is Test {
         vm.startPrank(alice);
         LICENSING_MODULE.attachLicenseTerms(ipId, address(PIL_TEMPLATE), licenseTermsId);
         LICENSING_MODULE.setLicensingConfig(ipId, address(PIL_TEMPLATE), licenseTermsId, licensingConfig);
-        IPUSD_PRICE_HOOK.setLicensePrice(ipId, address(PIL_TEMPLATE), licenseTermsId, 1e18); // sets the price to 1 USD
+        // sets the price to 1 USD
+        IPUSD_PRICE_HOOK.setLicensePrice(ipId, address(PIL_TEMPLATE), licenseTermsId, IP_TO_WEI);
         vm.stopPrank();
+
+        /// Royalty Module Setup
+        // We deposit 0.01 $MERC20 to the contract (in this tutorial, MERC20 is acting as IP). This is because in later tests we will be setting the IP (MERC20) price to $100 USD, so if the eventual license token minting price is 1 $USD, the contract will need 0.01 $MERC20 to buy.
+        MERC20.mint(address(this), IP_TO_WEI / 100);
+        // We approve the Royalty Module to spend MERC20 on our behalf, which
+        // it will do using `payRoyaltyOnBehalf`.
+        MERC20.approve(address(ROYALTY_MODULE), IP_TO_WEI / 100);
+    }
+
+    /// @notice Creates mock IP update data for testing.
+    /// @param ipPrice The IP price in USD.
+    /// @return updateData The mock IP update data.
+    function createIpUpdate(int64 ipPrice) private view returns (bytes[] memory) {
+        bytes[] memory updateData = new bytes[](1);
+        updateData[0] = pyth.createPriceFeedUpdateData(
+            PRICE_FEED_ID,
+            ipPrice * 100000, // price
+            10 * 100000, // confidence
+            -5, // exponent
+            ipPrice * 100000, // emaPrice
+            10 * 100000, // emaConfidence
+            uint64(block.timestamp), // publishTime
+            uint64(block.timestamp) // prevPublishTime
+        );
+
+        return updateData;
+    }
+
+    /// @notice Sets the IP price.
+    /// @param ipPrice The IP price in USD.
+    function setIpPrice(int64 ipPrice) private {
+        bytes[] memory updateData = createIpUpdate(ipPrice);
+        uint256 value = pyth.getUpdateFee(updateData);
+        vm.deal(address(this), value);
+        pyth.updatePriceFeeds{ value: value }(updateData);
     }
 
     /// @notice Mints license tokens for an IP Asset.
-    /// Anyone can mint a license token.
+    /// We set the IP price to $100 USD. The license token
+    /// costs 1 $USD. And we minted 0.01 $MERC20 (acting as IP)
+    /// to the contract. So this should succeed.
     function test_mintLicenseToken() public {
-        MERC20.mint(address(this), 1e18);
-        // We approve the Royalty Module to spend MERC20 on our behalf, which
-        // it will do using `payRoyaltyOnBehalf`.
-        MERC20.approve(address(ROYALTY_MODULE), 1e18);
+        /// Pyth Oracle Price Setup
+        setIpPrice(100); // sets IP to $100 USD
 
+        /// Mint License Token
         uint256 startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({
             licensorIpId: ipId,
             licenseTemplate: address(PIL_TEMPLATE),
@@ -121,7 +166,78 @@ contract IPUSDPriceHookTest is Test {
         });
 
         assertEq(LICENSE_TOKEN.ownerOf(startLicenseTokenId), bob);
+    }
 
-        console.log("balance of bob", MERC20.balanceOf(address(this)));
+    /// @notice Mints license tokens for an IP Asset.
+    /// We set the IP price to $99 USD. The license token
+    /// costs 1 $USD. And we minted 0.01 $MERC20 (acting as IP)
+    /// to the contract. So this should FAIL, because you'd need
+    /// a little more MERC20 to buy the license.
+    function test_mintLicenseTokenRevert() public {
+        /// Pyth Oracle Price Setup
+        setIpPrice(99); // sets IP to $99 USD
+
+        /// Mint License Token
+        vm.expectRevert();
+        uint256 startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+            licensorIpId: ipId,
+            licenseTemplate: address(PIL_TEMPLATE),
+            licenseTermsId: licenseTermsId,
+            amount: 1,
+            receiver: bob,
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
+        });
+    }
+
+    /// @notice This test should fail, because
+    /// the price gets stale after 60 seconds (as
+    /// specified in the IPUSDPriceHook.sol).
+    /// Here we skip forward 120 seconds, which is past
+    /// the 60 second stale price threshold.
+    function test_mintLicenseTokenStalePrice() public {
+        setIpPrice(100);
+
+        skip(120); // skip forward 120 seconds, which is past the 60 second stale price threshold
+
+        vm.expectRevert();
+        uint256 startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+            licensorIpId: ipId,
+            licenseTemplate: address(PIL_TEMPLATE),
+            licenseTermsId: licenseTermsId,
+            amount: 1,
+            receiver: bob,
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
+        });
+    }
+
+    /// @notice This test should succeed, because
+    /// we update the price before minting the license token.
+    /// This is what a real scenario would look like. The
+    /// above tests were "fake" because they mock set the price,
+    /// but this test calls the updateIpPrice function to update the price,
+    /// which is what would have to happen in a real scenario.
+    function test_updateAndMintLicenseToken() public {
+        bytes[] memory updateData = createIpUpdate(100);
+
+        /// It's 1 because that is the price of updating the mock Pyth price feed (as set above
+        /// when we initialize the MockPyth).
+        vm.deal(address(this), 1);
+        IPUSD_PRICE_HOOK.updateIpPrice{ value: 1 }(updateData);
+
+        /// Mint License Token
+        uint256 startLicenseTokenId = LICENSING_MODULE.mintLicenseTokens({
+            licensorIpId: ipId,
+            licenseTemplate: address(PIL_TEMPLATE),
+            licenseTermsId: licenseTermsId,
+            amount: 1,
+            receiver: bob,
+            royaltyContext: "", // for PIL, royaltyContext is empty string
+            maxMintingFee: 0,
+            maxRevenueShare: 0
+        });
     }
 }

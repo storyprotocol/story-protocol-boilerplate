@@ -139,8 +139,10 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
         totalMintingFee = _calculateFee(licensorIpId, licenseTemplate, licenseTermsId, amount);
     }
 
-    /// @notice This function is used to update the IP price.
-    /// @param pythPriceUpdate The Pyth price update data.
+    /// @notice Submit a pythPriceUpdate to the Pyth contract to update the on-chain price.
+    /// Updating the price requires paying the fee returned by getUpdateFee.
+    /// @param pythPriceUpdate The Pyth price update data. Fetch the pythPriceUpdate from Hermes and
+    /// pass it to the Pyth contract to update the prices.
     function updateIpPrice(bytes[] calldata pythPriceUpdate) external payable {
         uint256 fee = pyth.getUpdateFee(pythPriceUpdate);
         pyth.updatePriceFeeds{ value: fee }(pythPriceUpdate);
@@ -151,9 +153,11 @@ contract IPUSDPriceHook is BaseModule, AccessControlled, ILicensingHook {
     }
 
     /// @dev calculates the minting fee for a given license
-    /// @param licenseTemplate The license template address
-    /// @param licenseTermsId The license terms id
-    /// @param amount The amount of license tokens to mint
+    /// @param licensorIpId The ID of licensor IP from which issue the license tokens.
+    /// @param licenseTemplate The address of the license template.
+    /// @param licenseTermsId The ID of the license terms within the license template,
+    /// which is used to mint license tokens.
+    /// @param amount The amount of license tokens to mint.
     /// @return totalMintingFee The total minting fee to be paid when minting amount of license tokens
     function _calculateFee(
         address licensorIpId,
